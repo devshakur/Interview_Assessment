@@ -18,6 +18,10 @@ interface Field {
 export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
   const { models } = useFlowStore();
   const [newField, setNewField] = useState<Field>({ name: "", type: "string" });
+  const [newQueryField, setNewQueryField] = useState<Field>({
+    name: "",
+    type: "string",
+  });
 
   if (!node) return null;
 
@@ -47,7 +51,9 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
   };
 
   const addField = (arrayName: string) => {
-    const array = [...(node.data[arrayName] || []), newField];
+    if (!newField.name.trim()) return;
+
+    const array = [...(node.data[arrayName] || []), { ...newField }];
     onUpdateNode(node.id, {
       ...node.data,
       [arrayName]: array,
@@ -199,20 +205,16 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <label className="block text-sm font-medium mb-1">
                 Body Fields
               </label>
-              <div className="mb-2 p-2 bg-gray-50 rounded text-sm">
-                {node.data.fields && node.data.fields.length > 0 ? (
-                  node.data.fields.map((field: Field) => (
+              {node.data.fields?.length > 0 && (
+                <div className="mb-2 p-2 bg-gray-50 rounded text-sm">
+                  {node.data.fields.map((field: Field) => (
                     <div key={field.name} className="text-gray-600">
                       {field.name}: {field.type}
                       {field.validation ? ` (${field.validation})` : ""}
                     </div>
-                  ))
-                ) : (
-                  <div className="text-gray-500 italic">
-                    No body fields defined
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
               {(node.data.fields || []).map((field: Field, index: number) => (
                 <div key={index} className="flex gap-1 mb-2">
                   <input
@@ -267,7 +269,11 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                   <option value="date">Date</option>
                 </select>
                 <button
-                  onClick={() => addField("fields")}
+                  onClick={() => {
+                    if (newField.name.trim()) {
+                      addField("fields");
+                    }
+                  }}
                   className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   <Plus className="w-4 h-4" />
@@ -276,22 +282,18 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">
-                Query Fields
+                Query Parameters
               </label>
-              <div className="mb-2 p-2 bg-gray-50 rounded text-sm">
-                {node.data.queryFields && node.data.queryFields.length > 0 ? (
-                  node.data.queryFields.map((field: Field) => (
+              {node.data.queryFields?.length > 0 && (
+                <div className="mb-2 p-2 bg-gray-50 rounded text-sm">
+                  {node.data.queryFields.map((field: Field) => (
                     <div key={field.name} className="text-gray-600">
                       {field.name}: {field.type}
                       {field.validation ? ` (${field.validation})` : ""}
                     </div>
-                  ))
-                ) : (
-                  <div className="text-gray-500 italic">
-                    No query fields defined
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
               {(node.data.queryFields || []).map(
                 (field: Field, index: number) => (
                   <div key={index} className="flex gap-1 mb-2">
@@ -338,17 +340,17 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <div className="flex gap-1 mt-2">
                 <input
                   type="text"
-                  value={newField.name}
+                  value={newQueryField.name}
                   onChange={(e) =>
-                    setNewField({ ...newField, name: e.target.value })
+                    setNewQueryField({ ...newQueryField, name: e.target.value })
                   }
                   className="flex-1 p-2 border rounded text-sm"
                   placeholder="New query param"
                 />
                 <select
-                  value={newField.type}
+                  value={newQueryField.type}
                   onChange={(e) =>
-                    setNewField({ ...newField, type: e.target.value })
+                    setNewQueryField({ ...newQueryField, type: e.target.value })
                   }
                   className="w-20 p-2 border rounded text-sm"
                 >
@@ -358,7 +360,19 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                   <option value="date">Date</option>
                 </select>
                 <button
-                  onClick={() => addField("queryFields")}
+                  onClick={() => {
+                    if (newQueryField.name.trim()) {
+                      const array = [
+                        ...(node.data.queryFields || []),
+                        { ...newQueryField },
+                      ];
+                      onUpdateNode(node.id, {
+                        ...node.data,
+                        queryFields: array,
+                      });
+                      setNewQueryField({ name: "", type: "string" });
+                    }
+                  }}
                   className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   <Plus className="w-4 h-4" />
