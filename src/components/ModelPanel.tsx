@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Plus, Edit2 } from 'lucide-react';
-import { useFlowStore } from '../store/flowStore';
-import { ModelModal } from './ModelModal';
+import React, { useState } from "react";
+import { Plus, Edit2 } from "lucide-react";
+import { useFlowStore } from "../store/flowStore";
+import { ModelModal } from "./ModelModal";
 
 export function ModelPanel() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,10 +36,11 @@ export function ModelPanel() {
               <div>
                 <h3 className="font-medium">{model.name}</h3>
                 <p className="text-sm text-gray-500">
-                  {model.fields.length} field{model.fields.length !== 1 ? 's' : ''}
+                  {model.fields.length} field
+                  {model.fields.length !== 1 ? "s" : ""}
                 </p>
               </div>
-              <button 
+              <button
                 className="p-1 hover:bg-gray-100 rounded"
                 onClick={(e) => {
                   e.stopPropagation();

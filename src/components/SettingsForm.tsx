@@ -1,11 +1,14 @@
-import React from 'react';
-import { Save } from 'lucide-react';
-import { useFlowStore } from '../store/flowStore';
+import React from "react";
+import { Save } from "lucide-react";
+import { useFlowStore } from "../store/flowStore";
+import { TranslationService } from "../services/TranslationService";
 
 export function SettingsForm() {
   const { settings, updateSettings } = useFlowStore();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     updateSettings({
       ...settings,
       [e.target.name]: e.target.value,
@@ -16,6 +19,25 @@ export function SettingsForm() {
     updateSettings(settings);
   };
 
+  const handleExportConfiguration = () => {
+    const models = useFlowStore.getState().models;
+    const configuration = {
+      models: models.map((model) => TranslationService.translateModel(model)),
+    };
+
+    const blob = new Blob([JSON.stringify(configuration, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "model-configuration.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -23,7 +45,7 @@ export function SettingsForm() {
         <input
           type="text"
           name="globalKey"
-          value={settings?.globalKey || ''}
+          value={settings?.globalKey || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
           placeholder="Enter global key"
@@ -34,7 +56,7 @@ export function SettingsForm() {
         <label className="block text-sm font-medium mb-1">Database Type</label>
         <select
           name="databaseType"
-          value={settings?.databaseType || ''}
+          value={settings?.databaseType || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         >
@@ -47,10 +69,12 @@ export function SettingsForm() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Authentication Type</label>
+        <label className="block text-sm font-medium mb-1">
+          Authentication Type
+        </label>
         <select
           name="authType"
-          value={settings?.authType || ''}
+          value={settings?.authType || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         >
@@ -63,7 +87,7 @@ export function SettingsForm() {
         <label className="block text-sm font-medium mb-1">Timezone</label>
         <select
           name="timezone"
-          value={settings?.timezone || ''}
+          value={settings?.timezone || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         >
@@ -75,13 +99,15 @@ export function SettingsForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium">Database Credentials</label>
-        
+        <label className="block text-sm font-medium">
+          Database Credentials
+        </label>
+
         <div>
           <input
             type="text"
             name="dbHost"
-            value={settings?.dbHost || ''}
+            value={settings?.dbHost || ""}
             onChange={handleChange}
             className="w-full p-2 border rounded mb-2"
             placeholder="Host"
@@ -92,7 +118,7 @@ export function SettingsForm() {
           <input
             type="text"
             name="dbPort"
-            value={settings?.dbPort || ''}
+            value={settings?.dbPort || ""}
             onChange={handleChange}
             className="w-full p-2 border rounded mb-2"
             placeholder="Port"
@@ -103,7 +129,7 @@ export function SettingsForm() {
           <input
             type="text"
             name="dbUser"
-            value={settings?.dbUser || ''}
+            value={settings?.dbUser || ""}
             onChange={handleChange}
             className="w-full p-2 border rounded mb-2"
             placeholder="Username"
@@ -114,7 +140,7 @@ export function SettingsForm() {
           <input
             type="password"
             name="dbPassword"
-            value={settings?.dbPassword || ''}
+            value={settings?.dbPassword || ""}
             onChange={handleChange}
             className="w-full p-2 border rounded mb-2"
             placeholder="Password"
@@ -125,7 +151,7 @@ export function SettingsForm() {
           <input
             type="text"
             name="dbName"
-            value={settings?.dbName || ''}
+            value={settings?.dbName || ""}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             placeholder="Database Name"
@@ -140,6 +166,15 @@ export function SettingsForm() {
         <Save className="w-4 h-4" />
         Save Settings
       </button>
+
+      <div className="mt-6">
+        <button
+          onClick={handleExportConfiguration}
+          className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+        >
+          Export Configuration
+        </button>
+      </div>
     </div>
   );
 }

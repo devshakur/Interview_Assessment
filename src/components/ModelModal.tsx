@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash } from 'lucide-react';
-import { useFlowStore } from '../store/flowStore';
+import React, { useState, useEffect } from "react";
+import { X, Plus, Trash } from "lucide-react";
+import { useFlowStore } from "../store/flowStore";
 
 interface Field {
   name: string;
   type: string;
   defaultValue: string;
   validation: string;
+  validationOptions?: {
+    pattern?: string;
+    enum?: string[];
+    min?: number;
+    max?: number;
+    minLength?: number;
+    maxLength?: number;
+  };
   mapping?: string;
 }
 
@@ -21,35 +29,53 @@ interface ModelModalProps {
 }
 
 const fieldTypes = [
-  'string',
-  'number',
-  'boolean',
-  'date',
-  'mapping',
-  'array',
-  'object',
+  "primary key",
+  "string",
+  "long text",
+  "integer",
+  "double",
+  "big number",
+  "boolean",
+  "date",
+  "datetime",
+  "uuid",
+  "json",
+  "mapping",
 ];
 
 const validationRules = [
-  'required',
-  'email',
-  'url',
-  'min',
-  'max',
-  'pattern',
-  'enum',
+  "required",
+  "email",
+  "url",
+  "min",
+  "max",
+  "pattern",
+  "enum",
+  "length",
+  "minLength",
+  "maxLength",
+  "positive",
+  "negative",
+  "integer",
+  "decimal",
+  "alphanumeric",
+  "uuid",
+  "json",
+  "date",
+  "phone",
 ];
 
-const initialNewField = {
-  name: '',
-  type: 'string',
-  defaultValue: '',
-  validation: '',
+const initialNewField: Field = {
+  name: "",
+  type: "string",
+  defaultValue: "",
+  validation: "",
+  validationOptions: {},
 };
 
 const createInitialModelData = () => ({
   id: `model_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-  name: '',
+  name: "",
   fields: [],
 });
 
@@ -108,12 +134,9 @@ export function ModelModal({ isOpen, onClose, model }: ModelModalProps) {
       <div className="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] overflow-hidden">
         <div className="p-4 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-lg font-semibold">
-            {model ? 'Edit Model' : 'Add New Model'}
+            {model ? "Edit Model" : "Add New Model"}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded"
-          >
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -124,7 +147,9 @@ export function ModelModal({ isOpen, onClose, model }: ModelModalProps) {
             <input
               type="text"
               value={modelData.name}
-              onChange={(e) => setModelData({ ...modelData, name: e.target.value })}
+              onChange={(e) =>
+                setModelData({ ...modelData, name: e.target.value })
+              }
               className="w-full p-2 border rounded"
               placeholder="Enter model name"
             />
@@ -211,10 +236,10 @@ export function ModelModal({ isOpen, onClose, model }: ModelModalProps) {
                 </select>
               </div>
 
-              {newField.type === 'mapping' && (
+              {newField.type === "mapping" && (
                 <input
                   type="text"
-                  value={newField.mapping || ''}
+                  value={newField.mapping || ""}
                   onChange={(e) =>
                     setNewField({ ...newField, mapping: e.target.value })
                   }
@@ -222,6 +247,78 @@ export function ModelModal({ isOpen, onClose, model }: ModelModalProps) {
                   placeholder="key:value,key2:value2"
                 />
               )}
+
+              {newField.validation &&
+                [
+                  "pattern",
+                  "enum",
+                  "min",
+                  "max",
+                  "minLength",
+                  "maxLength",
+                ].includes(newField.validation) && (
+                  <div className="flex gap-2">
+                    {newField.validation === "pattern" && (
+                      <input
+                        type="text"
+                        value={newField.validationOptions?.pattern || ""}
+                        onChange={(e) =>
+                          setNewField({
+                            ...newField,
+                            validationOptions: {
+                              ...newField.validationOptions,
+                              pattern: e.target.value,
+                            },
+                          })
+                        }
+                        className="flex-1 p-2 border rounded"
+                        placeholder="Regular expression pattern"
+                      />
+                    )}
+                    {newField.validation === "enum" && (
+                      <input
+                        type="text"
+                        value={
+                          newField.validationOptions?.enum?.join(",") || ""
+                        }
+                        onChange={(e) =>
+                          setNewField({
+                            ...newField,
+                            validationOptions: {
+                              ...newField.validationOptions,
+                              enum: e.target.value.split(","),
+                            },
+                          })
+                        }
+                        className="flex-1 p-2 border rounded"
+                        placeholder="Comma-separated values"
+                      />
+                    )}
+                    {["min", "max", "minLength", "maxLength"].includes(
+                      newField.validation
+                    ) && (
+                      <input
+                        type="number"
+                        value={
+                          newField.validationOptions?.[
+                            newField.validation as keyof typeof newField.validationOptions
+                          ] || ""
+                        }
+                        onChange={(e) =>
+                          setNewField({
+                            ...newField,
+                            validationOptions: {
+                              ...newField.validationOptions,
+                              [newField.validation]: parseFloat(e.target.value),
+                            },
+                          })
+                        }
+                        className="flex-1 p-2 border rounded"
+                        placeholder={`Enter ${newField.validation} value`}
+                      />
+                    )}
+                  </div>
+                )}
 
               <button
                 onClick={handleAddField}
@@ -245,7 +342,7 @@ export function ModelModal({ isOpen, onClose, model }: ModelModalProps) {
             onClick={handleSave}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            {model ? 'Update' : 'Save'} Model
+            {model ? "Update" : "Save"} Model
           </button>
         </div>
       </div>
