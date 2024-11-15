@@ -84,8 +84,6 @@ export function SettingsForm() {
           <option value="">Select Database Type</option>
           <option value="mysql">MySQL</option>
           <option value="postgresql">PostgreSQL</option>
-          <option value="mongodb">MongoDB</option>
-          <option value="sqlite">SQLite</option>
         </select>
       </div>
 
@@ -159,7 +157,7 @@ export function SettingsForm() {
 
         <div>
           <input
-            type="password"
+            type="text"
             name="dbPassword"
             value={settings?.dbPassword || ""}
             onChange={handleChange}

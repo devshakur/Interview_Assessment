@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { Node, Edge } from 'reactflow';
+import { create } from "zustand";
+import { Node, Edge } from "reactflow";
 
 interface Model {
   id: string;
@@ -81,27 +81,31 @@ export const useFlowStore = create<FlowState>((set) => ({
   roles: [],
   routes: [],
   settings: {
-    globalKey: '',
-    databaseType: '',
-    authType: 'session',
-    timezone: 'UTC',
-    dbHost: '',
-    dbPort: '',
-    dbUser: '',
-    dbPassword: '',
-    dbName: '',
+    globalKey: `key_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    databaseType: "mysql",
+    authType: "session",
+    timezone: "UTC",
+    dbHost: "localhost",
+    dbPort: "3306", // normal MySQL port
+    dbUser: "root",
+    dbPassword: "root",
+    dbName: `database_${new Date().toISOString().split("T")[0]}`, // today's date
   },
-  setNodes: (nodes) => set((state) => ({ 
-    nodes: typeof nodes === 'function' ? nodes(state.nodes) : nodes 
-  })),
-  setEdges: (edges) => set((state) => ({ 
-    edges: typeof edges === 'function' ? edges(state.edges) : edges 
-  })),
+  setNodes: (nodes) =>
+    set((state) => ({
+      nodes: typeof nodes === "function" ? nodes(state.nodes) : nodes,
+    })),
+  setEdges: (edges) =>
+    set((state) => ({
+      edges: typeof edges === "function" ? edges(state.edges) : edges,
+    })),
   setSelectedNode: (node) => set({ selectedNode: node }),
   updateNodeData: (nodeId, newData) =>
     set((state) => ({
       nodes: state.nodes.map((node) =>
-        node.id === nodeId ? { ...node, data: { ...node.data, ...newData } } : node
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, ...newData } }
+          : node
       ),
     })),
   addModel: (model) =>
@@ -136,6 +140,5 @@ export const useFlowStore = create<FlowState>((set) => ({
     set((state) => ({
       routes: state.routes.filter((r) => r.id !== routeId),
     })),
-  updateSettings: (settings) =>
-    set({ settings }),
+  updateSettings: (settings) => set({ settings }),
 }));
