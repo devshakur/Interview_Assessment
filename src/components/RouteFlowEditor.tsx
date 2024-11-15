@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -9,13 +9,13 @@ import ReactFlow, {
   applyNodeChanges,
   applyEdgeChanges,
   Panel,
-} from 'reactflow';
-import { ArrowLeft, Save } from 'lucide-react';
-import { useFlowStore } from '../store/flowStore';
-import { ConfigPanel } from './ConfigPanel';
-import { ComponentsPanel } from './ComponentsPanel';
-import CustomNode from './CustomNode';
-import 'reactflow/dist/style.css';
+} from "reactflow";
+import { ArrowLeft, Save } from "lucide-react";
+import { useFlowStore } from "../store/flowStore";
+import { ConfigPanel } from "./ConfigPanel";
+import { ComponentsPanel } from "./ComponentsPanel";
+import CustomNode from "./CustomNode";
+import "reactflow/dist/style.css";
 
 const nodeTypes = {
   auth: CustomNode,
@@ -23,11 +23,11 @@ const nodeTypes = {
   output: CustomNode,
   logic: CustomNode,
   variable: CustomNode,
-  'db-find': CustomNode,
-  'db-insert': CustomNode,
-  'db-update': CustomNode,
-  'db-delete': CustomNode,
-  'db-query': CustomNode,
+  "db-find": CustomNode,
+  "db-insert": CustomNode,
+  "db-update": CustomNode,
+  "db-delete": CustomNode,
+  "db-query": CustomNode,
 };
 
 interface FlowEditorContentProps {
@@ -55,7 +55,18 @@ function FlowEditorContent({ route, onClose }: FlowEditorContentProps) {
       setNodes(route.flowData.nodes);
       setEdges(route.flowData.edges);
     } else {
-      setNodes([]);
+      // Create default URL node for new routes
+      const defaultNode = {
+        id: `node_${Date.now()}`,
+        type: "url",
+        position: { x: 100, y: 100 },
+        data: {
+          label: "URL",
+          path: route.url,
+          method: route.method,
+        },
+      };
+      setNodes([defaultNode]);
       setEdges([]);
     }
   }, [route, setNodes, setEdges]);
@@ -77,14 +88,14 @@ function FlowEditorContent({ route, onClose }: FlowEditorContentProps) {
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
+    event.dataTransfer.dropEffect = "move";
   }, []);
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
 
-      const type = event.dataTransfer.getData('application/reactflow');
+      const type = event.dataTransfer.getData("application/reactflow");
       if (!type || !reactFlowWrapper.current) return;
 
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
@@ -97,7 +108,9 @@ function FlowEditorContent({ route, onClose }: FlowEditorContentProps) {
         id: `node_${Date.now()}`,
         type,
         position,
-        data: { label: type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ') },
+        data: {
+          label: type.charAt(0).toUpperCase() + type.slice(1).replace("-", " "),
+        },
       };
 
       setNodes((nds) => [...nds, newNode]);

@@ -67,7 +67,9 @@ export function DefaultTablesModal({
   onClose,
 }: DefaultTablesModalProps) {
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
-  const { addModel } = useFlowStore();
+  const [includeAdminRole, setIncludeAdminRole] = useState(true);
+  const [includeMemberRole, setIncludeMemberRole] = useState(true);
+  const { addModel, addRole } = useFlowStore();
 
   const handleToggleTable = (tableId: string) => {
     setSelectedTables((prev) =>
@@ -88,6 +90,42 @@ export function DefaultTablesModal({
         });
       }
     });
+
+    // Add roles based on checkbox selection
+    if (selectedTables.includes("user")) {
+      if (includeAdminRole) {
+        addRole({
+          id: `role_admin_${Date.now()}`,
+          name: "Admin",
+          slug: "admin",
+          permissions: {
+            authRequired: true,
+            routes: [],
+            canCreateUsers: true,
+            canEditUsers: true,
+            canDeleteUsers: true,
+            canManageRoles: true,
+          },
+        });
+      }
+
+      if (includeMemberRole) {
+        addRole({
+          id: `role_member_${Date.now()}`,
+          name: "Member",
+          slug: "member",
+          permissions: {
+            authRequired: true,
+            routes: [],
+            canCreateUsers: false,
+            canEditUsers: false,
+            canDeleteUsers: false,
+            canManageRoles: false,
+          },
+        });
+      }
+    }
+
     onClose();
   };
 
@@ -127,6 +165,39 @@ export function DefaultTablesModal({
                     <div className="mt-2 text-sm text-gray-500">
                       Fields: {table.fields.map((f) => f.name).join(", ")}
                     </div>
+
+                    {/* Add role options when User table is selected */}
+                    {table.id === "user" && selectedTables.includes("user") && (
+                      <div className="mt-3 pl-2 border-l-2 border-gray-200">
+                        <p className="text-sm font-medium text-gray-700 mb-2">
+                          Include roles:
+                        </p>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={includeAdminRole}
+                              onChange={(e) =>
+                                setIncludeAdminRole(e.target.checked)
+                              }
+                              className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                            />
+                            <span>Admin Role</span>
+                          </label>
+                          <label className="flex items-center space-x-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={includeMemberRole}
+                              onChange={(e) =>
+                                setIncludeMemberRole(e.target.checked)
+                              }
+                              className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                            />
+                            <span>Member Role</span>
+                          </label>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </label>
               </div>

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { X, Plus, Trash } from 'lucide-react';
-import { Node } from 'reactflow';
-import { useFlowStore } from '../store/flowStore';
+import React, { useState } from "react";
+import { X, Plus, Trash } from "lucide-react";
+import { Node } from "reactflow";
+import { useFlowStore } from "../store/flowStore";
 
 interface ConfigPanelProps {
   node: Node | null;
@@ -17,18 +17,27 @@ interface Field {
 
 export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
   const { models } = useFlowStore();
-  const [newField, setNewField] = useState<Field>({ name: '', type: 'string' });
+  const [newField, setNewField] = useState<Field>({ name: "", type: "string" });
 
   if (!node) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     onUpdateNode(node.id, {
       ...node.data,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleArrayChange = (index: number, field: string, value: string, arrayName: string) => {
+  const handleArrayChange = (
+    index: number,
+    field: string,
+    value: string,
+    arrayName: string
+  ) => {
     const array = [...(node.data[arrayName] || [])];
     array[index] = { ...array[index], [field]: value };
     onUpdateNode(node.id, {
@@ -43,7 +52,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
       ...node.data,
       [arrayName]: array,
     });
-    setNewField({ name: '', type: 'string' });
+    setNewField({ name: "", type: "string" });
   };
 
   const removeField = (index: number, arrayName: string) => {
@@ -55,19 +64,35 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
     });
   };
 
+  const copyQueryFields = () => {
+    const currentFields = node.data.fields || [];
+    navigator.clipboard.writeText(JSON.stringify(currentFields, null, 2));
+  };
+
+  const extractQueryParams = (path: string) => {
+    const params = path.match(/:[a-zA-Z]+/g) || [];
+    return params.map((param) => ({
+      name: param.substring(1),
+      type: "string",
+      validation: "",
+    }));
+  };
+
   const renderDatabaseFields = () => (
     <>
       <div className="mb-4">
         <label className="block text-sm font-medium mb-1">Model</label>
         <select
           name="model"
-          value={node.data.model || ''}
+          value={node.data.model || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         >
           <option value="">Select Model</option>
           {models.map((model) => (
-            <option key={model.id} value={model.id}>{model.name}</option>
+            <option key={model.id} value={model.id}>
+              {model.name}
+            </option>
           ))}
         </select>
       </div>
@@ -75,7 +100,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
         <label className="block text-sm font-medium mb-1">SQL Query</label>
         <textarea
           name="query"
-          value={node.data.query || ''}
+          value={node.data.query || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded h-32 font-mono text-sm"
           placeholder="SELECT * FROM table WHERE id = :id"
@@ -86,7 +111,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
         <input
           type="text"
           name="resultVar"
-          value={node.data.resultVar || ''}
+          value={node.data.resultVar || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
           placeholder="result"
@@ -97,14 +122,16 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
 
   const renderFields = () => {
     switch (node.type) {
-      case 'auth':
+      case "auth":
         return (
           <>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Auth Type</label>
+              <label className="block text-sm font-medium mb-1">
+                Auth Type
+              </label>
               <select
                 name="authType"
-                value={node.data.authType || 'bearer'}
+                value={node.data.authType || "bearer"}
                 onChange={handleChange}
                 className="w-full p-2 border rounded"
               >
@@ -114,11 +141,13 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               </select>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Token Variable</label>
+              <label className="block text-sm font-medium mb-1">
+                Token Variable
+              </label>
               <input
                 type="text"
                 name="tokenVar"
-                value={node.data.tokenVar || ''}
+                value={node.data.tokenVar || ""}
                 onChange={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="token"
@@ -127,47 +156,239 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
           </>
         );
 
-      case 'url':
+      case "url":
         return (
           <>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">Method</label>
               <select
                 name="method"
-                value={node.data.method || 'GET'}
+                value={node.data.method || "GET"}
                 onChange={handleChange}
                 className="w-full p-2 border rounded"
               >
-                {['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].map(method => (
-                  <option key={method} value={method}>{method}</option>
+                {["GET", "POST", "PUT", "DELETE", "PATCH"].map((method) => (
+                  <option key={method} value={method}>
+                    {method}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Route Path</label>
+              <label className="block text-sm font-medium mb-1">
+                Route Path
+              </label>
               <input
                 type="text"
                 name="path"
-                value={node.data.path || ''}
-                onChange={handleChange}
+                value={node.data.path || ""}
+                onChange={(e) => {
+                  handleChange(e);
+                  const queryParams = extractQueryParams(e.target.value);
+                  onUpdateNode(node.id, {
+                    ...node.data,
+                    path: e.target.value,
+                    queryFields: queryParams,
+                  });
+                }}
                 className="w-full p-2 border rounded"
                 placeholder="/api/users/:id"
               />
             </div>
             <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">
+                Body Fields
+              </label>
+              <div className="mb-2 p-2 bg-gray-50 rounded text-sm">
+                {node.data.fields && node.data.fields.length > 0 ? (
+                  node.data.fields.map((field: Field) => (
+                    <div key={field.name} className="text-gray-600">
+                      {field.name}: {field.type}
+                      {field.validation ? ` (${field.validation})` : ""}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-gray-500 italic">
+                    No body fields defined
+                  </div>
+                )}
+              </div>
+              {(node.data.fields || []).map((field: Field, index: number) => (
+                <div key={index} className="flex gap-1 mb-2">
+                  <input
+                    type="text"
+                    value={field.name}
+                    onChange={(e) =>
+                      handleArrayChange(index, "name", e.target.value, "fields")
+                    }
+                    className="flex-1 p-2 border rounded text-sm"
+                    placeholder="Field name"
+                  />
+                  <select
+                    value={field.type}
+                    onChange={(e) =>
+                      handleArrayChange(index, "type", e.target.value, "fields")
+                    }
+                    className="w-20 p-2 border rounded text-sm"
+                  >
+                    <option value="string">String</option>
+                    <option value="number">Number</option>
+                    <option value="boolean">Bool</option>
+                    <option value="date">Date</option>
+                  </select>
+                  <button
+                    onClick={() => removeField(index, "fields")}
+                    className="p-2 text-red-500 hover:bg-red-50 rounded"
+                  >
+                    <Trash className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              <div className="flex gap-1 mt-2">
+                <input
+                  type="text"
+                  value={newField.name}
+                  onChange={(e) =>
+                    setNewField({ ...newField, name: e.target.value })
+                  }
+                  className="flex-1 p-2 border rounded text-sm"
+                  placeholder="New field name"
+                />
+                <select
+                  value={newField.type}
+                  onChange={(e) =>
+                    setNewField({ ...newField, type: e.target.value })
+                  }
+                  className="w-20 p-2 border rounded text-sm"
+                >
+                  <option value="string">String</option>
+                  <option value="number">Number</option>
+                  <option value="boolean">Bool</option>
+                  <option value="date">Date</option>
+                </select>
+                <button
+                  onClick={() => addField("fields")}
+                  className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">
+                Query Fields
+              </label>
+              <div className="mb-2 p-2 bg-gray-50 rounded text-sm">
+                {node.data.queryFields && node.data.queryFields.length > 0 ? (
+                  node.data.queryFields.map((field: Field) => (
+                    <div key={field.name} className="text-gray-600">
+                      {field.name}: {field.type}
+                      {field.validation ? ` (${field.validation})` : ""}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-gray-500 italic">
+                    No query fields defined
+                  </div>
+                )}
+              </div>
+              {(node.data.queryFields || []).map(
+                (field: Field, index: number) => (
+                  <div key={index} className="flex gap-1 mb-2">
+                    <input
+                      type="text"
+                      value={field.name}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          index,
+                          "name",
+                          e.target.value,
+                          "queryFields"
+                        )
+                      }
+                      className="flex-1 p-2 border rounded text-sm"
+                      placeholder="Field name"
+                    />
+                    <select
+                      value={field.type}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          index,
+                          "type",
+                          e.target.value,
+                          "queryFields"
+                        )
+                      }
+                      className="w-20 p-2 border rounded text-sm"
+                    >
+                      <option value="string">String</option>
+                      <option value="number">Number</option>
+                      <option value="boolean">Bool</option>
+                      <option value="date">Date</option>
+                    </select>
+                    <button
+                      onClick={() => removeField(index, "queryFields")}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded"
+                    >
+                      <Trash className="w-4 h-4" />
+                    </button>
+                  </div>
+                )
+              )}
+              <div className="flex gap-1 mt-2">
+                <input
+                  type="text"
+                  value={newField.name}
+                  onChange={(e) =>
+                    setNewField({ ...newField, name: e.target.value })
+                  }
+                  className="flex-1 p-2 border rounded text-sm"
+                  placeholder="New query param"
+                />
+                <select
+                  value={newField.type}
+                  onChange={(e) =>
+                    setNewField({ ...newField, type: e.target.value })
+                  }
+                  className="w-20 p-2 border rounded text-sm"
+                >
+                  <option value="string">String</option>
+                  <option value="number">Number</option>
+                  <option value="boolean">Bool</option>
+                  <option value="date">Date</option>
+                </select>
+                <button
+                  onClick={() => addField("queryFields")}
+                  className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </>
+        );
+
+      case "output":
+        return (
+          <>
+            <div className="mb-4">
               <label className="block text-sm font-medium mb-1">Fields</label>
               {(node.data.fields || []).map((field: Field, index: number) => (
                 <div key={index} className="flex gap-2 mb-2">
                   <input
                     type="text"
                     value={field.name}
-                    onChange={(e) => handleArrayChange(index, 'name', e.target.value, 'fields')}
+                    onChange={(e) =>
+                      handleArrayChange(index, "name", e.target.value, "fields")
+                    }
                     className="flex-1 p-2 border rounded"
                     placeholder="Field name"
                   />
                   <select
                     value={field.type}
-                    onChange={(e) => handleArrayChange(index, 'type', e.target.value, 'fields')}
+                    onChange={(e) =>
+                      handleArrayChange(index, "type", e.target.value, "fields")
+                    }
                     className="w-24 p-2 border rounded"
                   >
                     <option value="string">String</option>
@@ -175,15 +396,8 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                     <option value="boolean">Boolean</option>
                     <option value="date">Date</option>
                   </select>
-                  <input
-                    type="text"
-                    value={field.validation}
-                    onChange={(e) => handleArrayChange(index, 'validation', e.target.value, 'fields')}
-                    className="flex-1 p-2 border rounded"
-                    placeholder="Validation"
-                  />
                   <button
-                    onClick={() => removeField(index, 'fields')}
+                    onClick={() => removeField(index, "fields")}
                     className="p-2 text-red-500 hover:bg-red-50 rounded"
                   >
                     <Trash className="w-4 h-4" />
@@ -194,13 +408,17 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 <input
                   type="text"
                   value={newField.name}
-                  onChange={(e) => setNewField({ ...newField, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewField({ ...newField, name: e.target.value })
+                  }
                   className="flex-1 p-2 border rounded"
                   placeholder="New field name"
                 />
                 <select
                   value={newField.type}
-                  onChange={(e) => setNewField({ ...newField, type: e.target.value })}
+                  onChange={(e) =>
+                    setNewField({ ...newField, type: e.target.value })
+                  }
                   className="w-24 p-2 border rounded"
                 >
                   <option value="string">String</option>
@@ -209,7 +427,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                   <option value="date">Date</option>
                 </select>
                 <button
-                  onClick={() => addField('fields')}
+                  onClick={() => addField("fields")}
                   className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   <Plus className="w-4 h-4" />
@@ -219,76 +437,17 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
           </>
         );
 
-      case 'output':
+      case "variable":
         return (
           <>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Fields</label>
-              {(node.data.fields || []).map((field: Field, index: number) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={field.name}
-                    onChange={(e) => handleArrayChange(index, 'name', e.target.value, 'fields')}
-                    className="flex-1 p-2 border rounded"
-                    placeholder="Field name"
-                  />
-                  <select
-                    value={field.type}
-                    onChange={(e) => handleArrayChange(index, 'type', e.target.value, 'fields')}
-                    className="w-24 p-2 border rounded"
-                  >
-                    <option value="string">String</option>
-                    <option value="number">Number</option>
-                    <option value="boolean">Boolean</option>
-                    <option value="date">Date</option>
-                  </select>
-                  <button
-                    onClick={() => removeField(index, 'fields')}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded"
-                  >
-                    <Trash className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-              <div className="flex gap-2 mt-2">
-                <input
-                  type="text"
-                  value={newField.name}
-                  onChange={(e) => setNewField({ ...newField, name: e.target.value })}
-                  className="flex-1 p-2 border rounded"
-                  placeholder="New field name"
-                />
-                <select
-                  value={newField.type}
-                  onChange={(e) => setNewField({ ...newField, type: e.target.value })}
-                  className="w-24 p-2 border rounded"
-                >
-                  <option value="string">String</option>
-                  <option value="number">Number</option>
-                  <option value="boolean">Boolean</option>
-                  <option value="date">Date</option>
-                </select>
-                <button
-                  onClick={() => addField('fields')}
-                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </>
-        );
-
-      case 'variable':
-        return (
-          <>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Variable Name</label>
+              <label className="block text-sm font-medium mb-1">
+                Variable Name
+              </label>
               <input
                 type="text"
                 name="name"
-                value={node.data.name || ''}
+                value={node.data.name || ""}
                 onChange={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="myVariable"
@@ -298,7 +457,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <label className="block text-sm font-medium mb-1">Type</label>
               <select
                 name="type"
-                value={node.data.type || 'string'}
+                value={node.data.type || "string"}
                 onChange={handleChange}
                 className="w-full p-2 border rounded"
               >
@@ -310,11 +469,13 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               </select>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Default Value</label>
+              <label className="block text-sm font-medium mb-1">
+                Default Value
+              </label>
               <input
                 type="text"
                 name="defaultValue"
-                value={node.data.defaultValue || ''}
+                value={node.data.defaultValue || ""}
                 onChange={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="Default value"
@@ -323,13 +484,15 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
           </>
         );
 
-      case 'logic':
+      case "logic":
         return (
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">JavaScript Code</label>
+            <label className="block text-sm font-medium mb-1">
+              JavaScript Code
+            </label>
             <textarea
               name="code"
-              value={node.data.code || ''}
+              value={node.data.code || ""}
               onChange={handleChange}
               className="w-full p-2 border rounded h-40 font-mono text-sm"
               placeholder="// Write your JavaScript code here"
@@ -337,19 +500,33 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
           </div>
         );
 
-      case 'db-find':
-      case 'db-query':
-        return renderDatabaseFields();
-
-      case 'db-insert':
+      case "db-find":
+      case "db-query":
         return (
           <>
             {renderDatabaseFields()}
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Variables</label>
+              <button
+                onClick={copyQueryFields}
+                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
+              >
+                Copy Fields
+              </button>
+            </div>
+          </>
+        );
+
+      case "db-insert":
+        return (
+          <>
+            {renderDatabaseFields()}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">
+                Variables
+              </label>
               <textarea
                 name="variables"
-                value={node.data.variables || ''}
+                value={node.data.variables || ""}
                 onChange={handleChange}
                 className="w-full p-2 border rounded h-20 font-mono text-sm"
                 placeholder="name: string&#10;age: number"
@@ -358,8 +535,8 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
           </>
         );
 
-      case 'db-update':
-      case 'db-delete':
+      case "db-update":
+      case "db-delete":
         return (
           <>
             {renderDatabaseFields()}
@@ -368,18 +545,20 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <input
                 type="text"
                 name="idField"
-                value={node.data.idField || ''}
+                value={node.data.idField || ""}
                 onChange={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="id"
               />
             </div>
-            {node.type === 'db-update' && (
+            {node.type === "db-update" && (
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Variables</label>
+                <label className="block text-sm font-medium mb-1">
+                  Variables
+                </label>
                 <textarea
                   name="variables"
-                  value={node.data.variables || ''}
+                  value={node.data.variables || ""}
                   onChange={handleChange}
                   className="w-full p-2 border rounded h-20 font-mono text-sm"
                   placeholder="name: string&#10;age: number"

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { X, Trash2 } from 'lucide-react';
-import { useFlowStore } from '../store/flowStore';
+import React, { useState, useEffect } from "react";
+import { X, Trash2 } from "lucide-react";
+import { useFlowStore } from "../store/flowStore";
 
 interface RouteModalProps {
   isOpen: boolean;
@@ -15,9 +15,9 @@ interface RouteModalProps {
 
 const createInitialFormData = () => ({
   id: `route_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-  name: '',
-  url: '',
-  method: 'GET',
+  name: "",
+  url: "",
+  method: "GET",
 });
 
 export function RouteModal({ isOpen, onClose, route }: RouteModalProps) {
@@ -32,7 +32,9 @@ export function RouteModal({ isOpen, onClose, route }: RouteModalProps) {
     }
   }, [route, isOpen]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -63,12 +65,9 @@ export function RouteModal({ isOpen, onClose, route }: RouteModalProps) {
       <div className="bg-white rounded-lg w-full max-w-md">
         <div className="p-4 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-lg font-semibold">
-            {route ? 'Edit Route' : 'Add New Route'}
+            {route ? "Edit Route" : "Add New Route"}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded"
-          >
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -76,7 +75,9 @@ export function RouteModal({ isOpen, onClose, route }: RouteModalProps) {
         <div className="p-4">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Route Name</label>
+              <label className="block text-sm font-medium mb-1">
+                Route Name
+              </label>
               <input
                 type="text"
                 name="name"
@@ -138,7 +139,7 @@ export function RouteModal({ isOpen, onClose, route }: RouteModalProps) {
               onClick={handleSave}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
-              {route ? 'Update' : 'Save'} Route
+              {route ? "Update" : "Save"} Route
             </button>
           </div>
         </div>
