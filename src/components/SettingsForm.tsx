@@ -4,7 +4,7 @@ import { useFlowStore } from "../store/flowStore";
 import { TranslationService } from "../services/TranslationService";
 
 export function SettingsForm() {
-  const { settings, updateSettings } = useFlowStore();
+  const { settings, updateSettings, routes } = useFlowStore();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -21,8 +21,29 @@ export function SettingsForm() {
 
   const handleExportConfiguration = () => {
     const models = useFlowStore.getState().models;
+    const roles = useFlowStore.getState().roles;
+    const routes = useFlowStore.getState().routes;
+
     const configuration = {
       models: models.map((model) => TranslationService.translateModel(model)),
+      roles: roles.map((role) => ({
+        name: role.name,
+        slug: role.slug,
+        permissions: {
+          ...role.permissions,
+          routes: role.permissions.routes
+            .map((routeId) => {
+              const route = routes.find((r) => r.id === routeId);
+              return route
+                ? {
+                    method: route.method,
+                    url: route.url,
+                  }
+                : null;
+            })
+            .filter(Boolean),
+        },
+      })),
     };
 
     const blob = new Blob([JSON.stringify(configuration, null, 2)], {
@@ -31,7 +52,7 @@ export function SettingsForm() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "model-configuration.json";
+    a.download = "configuration.json";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

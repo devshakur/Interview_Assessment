@@ -1,6 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { X, Trash2 } from 'lucide-react';
-import { useFlowStore } from '../store/flowStore';
+import React, { useState, useEffect } from "react";
+import { X, Trash2 } from "lucide-react";
+import { useFlowStore } from "../store/flowStore";
+
+interface Permissions {
+  authRequired: boolean;
+  routes: string[];
+  canCreateUsers: boolean;
+  canEditUsers: boolean;
+  canDeleteUsers: boolean;
+  canManageRoles: boolean;
+  canLogin: boolean;
+  canRegister: boolean;
+  canGoogleLogin: boolean;
+  canAppleLogin: boolean;
+  canMicrosoftLogin: boolean;
+  canMagicLinkLogin: boolean;
+  needs2FA: boolean;
+  canSetPermissions: boolean;
+}
 
 interface RoleModalProps {
   isOpen: boolean;
@@ -9,21 +26,14 @@ interface RoleModalProps {
     id: string;
     name: string;
     slug: string;
-    permissions: {
-      authRequired: boolean;
-      routes: string[];
-      canCreateUsers: boolean;
-      canEditUsers: boolean;
-      canDeleteUsers: boolean;
-      canManageRoles: boolean;
-    };
+    permissions: Permissions;
   };
 }
 
 const createInitialFormData = () => ({
   id: `role_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-  name: '',
-  slug: '',
+  name: "",
+  slug: "",
   permissions: {
     authRequired: false,
     routes: [],
@@ -31,6 +41,14 @@ const createInitialFormData = () => ({
     canEditUsers: false,
     canDeleteUsers: false,
     canManageRoles: false,
+    canLogin: false,
+    canRegister: false,
+    canGoogleLogin: false,
+    canAppleLogin: false,
+    canMicrosoftLogin: false,
+    canMagicLinkLogin: false,
+    needs2FA: false,
+    canSetPermissions: false,
   },
 });
 
@@ -48,9 +66,9 @@ export function RoleModal({ isOpen, onClose, role }: RoleModalProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    if (type === 'checkbox') {
-      if (name.startsWith('permissions.')) {
-        const permissionKey = name.split('.')[1];
+    if (type === "checkbox") {
+      if (name.startsWith("permissions.")) {
+        const permissionKey = name.split(".")[1];
         setFormData({
           ...formData,
           permissions: {
@@ -63,13 +81,13 @@ export function RoleModal({ isOpen, onClose, role }: RoleModalProps) {
       setFormData({
         ...formData,
         [name]: value,
-        ...(name === 'name' && !role
+        ...(name === "name" && !role
           ? {
               slug: value
                 .toLowerCase()
-                .replace(/[^a-z0-9]/g, '-')
-                .replace(/-+/g, '-')
-                .replace(/^-|-$/g, ''),
+                .replace(/[^a-z0-9]/g, "-")
+                .replace(/-+/g, "-")
+                .replace(/^-|-$/g, ""),
             }
           : {}),
       });
@@ -121,12 +139,9 @@ export function RoleModal({ isOpen, onClose, role }: RoleModalProps) {
       <div className="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] overflow-hidden">
         <div className="p-4 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-lg font-semibold">
-            {role ? 'Edit Role' : 'Add New Role'}
+            {role ? "Edit Role" : "Add New Role"}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded"
-          >
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -134,7 +149,9 @@ export function RoleModal({ isOpen, onClose, role }: RoleModalProps) {
         <div className="p-4 overflow-y-auto">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Role Name</label>
+              <label className="block text-sm font-medium mb-1">
+                Role Name
+              </label>
               <input
                 type="text"
                 name="name"
@@ -146,7 +163,9 @@ export function RoleModal({ isOpen, onClose, role }: RoleModalProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Role Slug</label>
+              <label className="block text-sm font-medium mb-1">
+                Role Slug
+              </label>
               <input
                 type="text"
                 name="slug"
@@ -159,28 +178,20 @@ export function RoleModal({ isOpen, onClose, role }: RoleModalProps) {
             </div>
 
             <div>
-              <h3 className="text-sm font-medium mb-2">Permissions</h3>
-              
               <div className="space-y-3">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="permissions.authRequired"
-                    checked={formData.permissions.authRequired}
-                    onChange={handleChange}
-                    className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                  />
-                  <span className="ml-2 text-sm">Authentication Required</span>
-                </label>
-
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-medium">Accessible Routes</h4>
+                    <h4 className="text-sm font-medium">Permissions</h4>
                     <label className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={formData.permissions.routes.length === routes.length}
-                        onChange={(e) => handleSelectAllRoutes(e.target.checked)}
+                        checked={
+                          formData.permissions.routes.length > 0 &&
+                          formData.permissions.routes.length === routes.length
+                        }
+                        onChange={(e) =>
+                          handleSelectAllRoutes(e.target.checked)
+                        }
                         className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                       />
                       <span className="ml-2 text-sm">Select All</span>
@@ -191,8 +202,12 @@ export function RoleModal({ isOpen, onClose, role }: RoleModalProps) {
                       <label key={route.id} className="flex items-center">
                         <input
                           type="checkbox"
-                          checked={formData.permissions.routes.includes(route.id)}
-                          onChange={(e) => handleRouteChange(route.id, e.target.checked)}
+                          checked={formData.permissions.routes.includes(
+                            route.id
+                          )}
+                          onChange={(e) =>
+                            handleRouteChange(route.id, e.target.checked)
+                          }
                           className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                         />
                         <span className="ml-2 text-sm">
@@ -239,6 +254,76 @@ export function RoleModal({ isOpen, onClose, role }: RoleModalProps) {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">
+                    Authentication Management
+                  </h4>
+                  <div className="space-y-2 ml-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        name="permissions.authRequired"
+                        checked={formData.permissions.authRequired}
+                        onChange={handleChange}
+                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                      />
+                      <span className="ml-2 text-sm">
+                        Authentication Required
+                      </span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        name="permissions.canLogin"
+                        checked={formData.permissions.canLogin}
+                        onChange={handleChange}
+                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                      />
+                      <span className="ml-2 text-sm">Can Login</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        name="permissions.canRegister"
+                        checked={formData.permissions.canRegister}
+                        onChange={handleChange}
+                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                      />
+                      <span className="ml-2 text-sm">Can Register</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        name="permissions.canGoogleLogin"
+                        checked={formData.permissions.canGoogleLogin}
+                        onChange={handleChange}
+                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                      />
+                      <span className="ml-2 text-sm">Can Use Google Login</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        name="permissions.needs2FA"
+                        checked={formData.permissions.needs2FA}
+                        onChange={handleChange}
+                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                      />
+                      <span className="ml-2 text-sm">Requires 2FA</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        name="permissions.canSetPermissions"
+                        checked={formData.permissions.canSetPermissions}
+                        onChange={handleChange}
+                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                      />
+                      <span className="ml-2 text-sm">Can Set Permissions</span>
+                    </label>
+                  </div>
+                </div>
+
                 <label className="flex items-center">
                   <input
                     type="checkbox"
@@ -275,7 +360,7 @@ export function RoleModal({ isOpen, onClose, role }: RoleModalProps) {
               onClick={handleSave}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
-              {role ? 'Update' : 'Save'} Role
+              {role ? "Update" : "Save"} Role
             </button>
           </div>
         </div>
