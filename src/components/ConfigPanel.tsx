@@ -51,14 +51,21 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
   };
 
   const addField = (arrayName: string) => {
-    if (!newField.name.trim()) return;
+    const fieldToAdd = arrayName === "queryFields" ? newQueryField : newField;
+    if (!fieldToAdd.name.trim()) return;
 
-    const array = [...(node.data[arrayName] || []), { ...newField }];
+    const array = [...(node.data[arrayName] || []), { ...fieldToAdd }];
     onUpdateNode(node.id, {
       ...node.data,
       [arrayName]: array,
     });
-    setNewField({ name: "", type: "string" });
+
+    // Reset the appropriate state
+    if (arrayName === "queryFields") {
+      setNewQueryField({ name: "", type: "string" });
+    } else {
+      setNewField({ name: "", type: "string" });
+    }
   };
 
   const removeField = (index: number, arrayName: string) => {
@@ -362,13 +369,13 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 <button
                   onClick={() => {
                     if (newQueryField.name.trim()) {
-                      const array = [
+                      const updatedQueryFields = [
                         ...(node.data.queryFields || []),
                         { ...newQueryField },
                       ];
                       onUpdateNode(node.id, {
                         ...node.data,
-                        queryFields: array,
+                        queryFields: updatedQueryFields,
                       });
                       setNewQueryField({ name: "", type: "string" });
                     }
