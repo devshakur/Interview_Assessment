@@ -1,12 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, Edit2 } from "lucide-react";
 import { useFlowStore } from "../store/flowStore";
 import { ModelModal } from "./ModelModal";
+import { DefaultTablesModal } from "./DefaultTablesModal";
 
 export function ModelPanel() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDefaultTablesModalOpen, setIsDefaultTablesModalOpen] =
+    useState(false);
   const [selectedModel, setSelectedModel] = useState<any>(null);
-  const { models } = useFlowStore();
+  const { models, defaultTablesShown, setDefaultTablesShown } = useFlowStore();
+
+  useEffect(() => {
+    // Show default tables modal only if there are no models and it hasn't been shown before
+    if (models.length === 0 && !defaultTablesShown) {
+      setIsDefaultTablesModalOpen(true);
+      setDefaultTablesShown(true); // Mark as shown
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   const handleEditModel = (model: any) => {
     setSelectedModel(model);
@@ -61,6 +72,11 @@ export function ModelPanel() {
           setSelectedModel(null);
         }}
         model={selectedModel}
+      />
+
+      <DefaultTablesModal
+        isOpen={isDefaultTablesModalOpen}
+        onClose={() => setIsDefaultTablesModalOpen(false)}
       />
     </div>
   );

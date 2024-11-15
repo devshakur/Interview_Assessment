@@ -58,6 +58,7 @@ interface FlowState {
   roles: Role[];
   routes: Route[];
   settings: Settings;
+  defaultTablesShown: boolean;
   setNodes: (nodes: Node[] | ((prev: Node[]) => Node[])) => void;
   setEdges: (edges: Edge[] | ((prev: Edge[]) => Edge[])) => void;
   setSelectedNode: (node: Node | null) => void;
@@ -71,6 +72,7 @@ interface FlowState {
   updateRoute: (route: Route) => void;
   deleteRoute: (routeId: string) => void;
   updateSettings: (settings: Settings) => void;
+  setDefaultTablesShown: (shown: boolean) => void;
 }
 
 export const useFlowStore = create<FlowState>((set) => ({
@@ -91,6 +93,7 @@ export const useFlowStore = create<FlowState>((set) => ({
     dbPassword: "root",
     dbName: `database_${new Date().toISOString().split("T")[0]}`, // today's date
   },
+  defaultTablesShown: false,
   setNodes: (nodes) =>
     set((state) => ({
       nodes: typeof nodes === "function" ? nodes(state.nodes) : nodes,
@@ -141,4 +144,5 @@ export const useFlowStore = create<FlowState>((set) => ({
       routes: state.routes.filter((r) => r.id !== routeId),
     })),
   updateSettings: (settings) => set({ settings }),
+  setDefaultTablesShown: (shown) => set({ defaultTablesShown: shown }),
 }));
