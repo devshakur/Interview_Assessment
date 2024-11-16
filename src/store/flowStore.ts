@@ -30,11 +30,11 @@ interface Role {
 interface Route {
   id: string;
   name: string;
-  url: string;
   method: string;
+  url: string;
   flowData?: {
-    nodes: Node[];
-    edges: Edge[];
+    nodes: any[];
+    edges: any[];
   };
 }
 

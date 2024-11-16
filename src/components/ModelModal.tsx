@@ -80,10 +80,15 @@ const createInitialModelData = () => ({
 });
 
 export function ModelModal({ isOpen, onClose, model }: ModelModalProps) {
-  const [modelData, setModelData] = useState(createInitialModelData());
+  const [modelData, setModelData] = useState<{
+    id: string;
+    name: string;
+    fields: Field[];
+  }>(createInitialModelData());
   const [newField, setNewField] = useState<Field>(initialNewField);
+  const [createCrudApis, setCreateCrudApis] = useState(false); // New state for CRUD API checkbox
 
-  const { addModel, updateModel } = useFlowStore();
+  const { addModel, updateModel, addRoute } = useFlowStore();
 
   useEffect(() => {
     if (model) {
@@ -122,8 +127,138 @@ export function ModelModal({ isOpen, onClose, model }: ModelModalProps) {
         updateModel(modelData);
       } else {
         addModel(modelData);
+        if (createCrudApis) {
+          // Create GET route for fetching all records
+          const uniqueId = Date.now(); // Generate a unique identifier based on the current timestamp
+          const getRoute = {
+            id: `route_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            name: `Get All ${modelData.name}`,
+            method: 'GET',
+            url: `/api/${modelData.name.toLowerCase()}`,
+            flowData: {
+              nodes: [
+                {
+                  id: `url_node_${uniqueId}`,
+                  type: 'url',
+                  position: { x: 100, y: 100 },
+                  data: {
+                    label: 'URL',
+                    path: `/api/${modelData.name.toLowerCase()}`,
+                    method: 'GET'
+                  }
+                },
+                {
+                  id: `db_find_node_${uniqueId}`,
+                  type: 'db-find',
+                  position: { x: 100, y: 200 },
+                  data: {
+                    label: 'Database Find',
+                    model: modelData.name,
+                    operation: 'findMany',
+                    query: `SELECT * FROM ${modelData.name}`,
+                    resultVar: `${modelData.name}Result`
+                  }
+                },
+                {
+                  id: `output_node_${uniqueId}`,
+                  type: 'output',
+                  position: { x: 100, y: 300 },
+                  data: {
+                    label: 'Output',
+                    outputType: 'definition',
+                    fields: modelData.fields.map(field => ({
+                      name: field.name,
+                      type: field.type === 'primary key' ? 'number' : 
+                            field.type === 'long text' ? 'string' : 
+                            field.type === 'big number' ? 'number' : 
+                            field.type
+                    })),
+                    statusCode: 200
+                  }
+                }
+              ],
+              edges: [
+                {
+                  id: `url-to-db_${uniqueId}`,
+                  source: `url_node_${uniqueId}`,
+                  target: `db_find_node_${uniqueId}`
+                },
+                {
+                  id: `db-to-output_${uniqueId}`,
+                  source: `db_find_node_${uniqueId}`,
+                  target: `output_node_${uniqueId}`
+                }
+              ]
+            }
+          };
+
+          const getOneRoute = {
+            id: `route_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            name: `Get One ${modelData.name}`,
+            method: 'GET',
+            url: `/api/${modelData.name.toLowerCase()}/:id`,
+            flowData: {
+              nodes: [
+                {
+                  id: `url_node_${uniqueId}_1`,
+                  type: 'url',
+                  position: { x: 100, y: 100 },
+                  data: {
+                    label: 'URL',
+                    path: `/api/${modelData.name.toLowerCase()}/:id`,
+                    method: 'GET'
+                  }
+                },
+                {
+                  id: `db_find_node_${uniqueId}_1`,
+                  type: 'db-find',
+                  position: { x: 100, y: 200 },
+                  data: {
+                    label: 'Database Find',
+                    model: modelData.name,
+                    operation: 'findOne',
+                    query: `SELECT * FROM ${modelData.name} WHERE id=id`,
+                    resultVar: `${modelData.name}OneResult`
+                  }
+                },
+                {
+                  id: `output_node_${uniqueId}_1`,
+                  type: 'output',
+                  position: { x: 100, y: 300 },
+                  data: {
+                    label: 'Output',
+                    outputType: 'definition',
+                    fields: modelData.fields.map(field => ({
+                      name: field.name,
+                      type: field.type === 'primary key' ? 'number' : 
+                            field.type === 'long text' ? 'string' : 
+                            field.type === 'big number' ? 'number' : 
+                            field.type
+                    })),
+                    statusCode: 200
+                  }
+                }
+              ],
+              edges: [
+                {
+                  id: `url-to-db_${uniqueId}_1`,
+                  source: `url_node_${uniqueId}_1`,
+                  target: `db_find_node_${uniqueId}_1`
+                },
+                {
+                  id: `db-to-output_${uniqueId}_1`,
+                  source: `db_find_node_${uniqueId}_1`,
+                  target: `output_node_${uniqueId}_1`
+                }
+              ]
+            }
+          };
+
+          addRoute(getRoute as any);
+          addRoute(getOneRoute as any);
+        }
+        onClose();
       }
-      onClose();
     }
   };
 
@@ -327,6 +462,18 @@ export function ModelModal({ isOpen, onClose, model }: ModelModalProps) {
                 <Plus className="w-4 h-4" />
                 Add Field
               </button>
+
+              
+                <div className="flex items-center mt-4">
+                  <input
+                    type="checkbox"
+                    checked={createCrudApis}
+                    onChange={(e) => setCreateCrudApis(e.target.checked)}
+                    className="mr-2"
+                  />
+                  <label className="text-sm">Create CRUD APIs</label>
+                </div>
+              
             </div>
           </div>
         </div>
