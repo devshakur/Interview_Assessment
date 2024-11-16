@@ -254,6 +254,66 @@ export function ModelModal({ isOpen, onClose, model }: ModelModalProps) {
             }
           };
 
+          const deleteRoute = {
+            id: `route_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            name: `Delete One ${modelData.name}`,
+            method: 'DELETE',
+            url: `/api/${modelData.name.toLowerCase()}/:id`,
+            flowData: {
+              nodes: [
+                {
+                  id: `url_node_${uniqueId}_1`,
+                  type: 'url',
+                  position: { x: 100, y: 100 },
+                  data: {
+                    label: 'URL',
+                    path: `/api/${modelData.name.toLowerCase()}/:id`,
+                    method: 'DELETE'
+                  }
+                },
+                {
+                  id: `db_find_node_${uniqueId}_2`,
+                  type: 'db-delete',
+                  position: { x: 100, y: 200 },
+                  data: {
+                    label: 'Database Delete',
+                    model: modelData.name,
+                    operation: 'findOne',
+                    query: `DELETE FROM ${modelData.name} WHERE id=id`,
+                    resultVar: `${modelData.name}DeleteResult`
+                  }
+                },
+                {
+                  id: `output_node_${uniqueId}_2`,
+                  type: 'output',
+                  position: { x: 100, y: 300 },
+                  data: {
+                    label: 'Output',
+                    outputType: 'definition',
+                    fields: [
+                      {name: "error", type: "boolean"},
+                      {name: "id", type: "integer"}
+                    ],
+                    statusCode: 200
+                  }
+                }
+              ],
+              edges: [
+                {
+                  id: `url-to-db_${uniqueId}_1`,
+                  source: `url_node_${uniqueId}_1`,
+                  target: `db_find_node_${uniqueId}_2`
+                },
+                {
+                  id: `db-to-output_${uniqueId}_2`,
+                  source: `db_find_node_${uniqueId}_2`,
+                  target: `output_node_${uniqueId}_2`
+                }
+              ]
+            }
+          };
+
+          addRoute(deleteRoute as any);
           addRoute(getRoute as any);
           addRoute(getOneRoute as any);
         }
