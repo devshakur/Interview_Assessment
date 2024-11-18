@@ -323,15 +323,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 type="text"
                 name="path"
                 value={node.data.path}
-                onBlur={(e) => {
-                  handleChange(e);
-                  const queryParams = extractQueryParams(e.target.value);
-                  onUpdateNode(node.id, {
-                    ...node.data,
-                    path: e.target.value,
-                    queryFields: queryParams,
-                  });
-                }}
+                onChange={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="/api/users/:id"
               />
