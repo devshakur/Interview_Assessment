@@ -148,7 +148,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
     value: string,
     arrayName: string
   ) => {
-    const array = [...(node.data[arrayName] || [])];
+    const array = [...node.data[arrayName]];
     array[index] = { ...array[index], [field]: value };
     const newData = {
       ...node.data,
@@ -163,7 +163,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
     const fieldToAdd = arrayName === "queryFields" ? newQueryField : newField;
     if (!fieldToAdd.name.trim()) return;
 
-    const array = [...(node.data[arrayName] || []), { ...fieldToAdd }];
+    const array = [...node.data[arrayName], { ...fieldToAdd }];
     const newData = {
       ...node.data,
       [arrayName]: array,
@@ -181,7 +181,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
   };
 
   const removeField = (index: number, arrayName: string) => {
-    const array = [...(node.data[arrayName] || [])];
+    const array = [...node.data[arrayName]];
     array.splice(index, 1);
     const newData = {
       ...node.data,
@@ -212,7 +212,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
         <label className="block text-sm font-medium mb-1">Model</label>
         <select
           name="model"
-          value={node.data.model || ""}
+          value={node.data.model}
           onBlur={handleChange}
           className="w-full p-2 border rounded"
         >
@@ -228,7 +228,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
         <label className="block text-sm font-medium mb-1">Operation</label>
         <select
           name="operation"
-          value={node.data.operation || "findMany"}
+          value={node.data.operation}
           onBlur={handleChange}
           className="w-full p-2 border rounded"
         >
@@ -241,7 +241,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
         <label className="block text-sm font-medium mb-1">SQL Query</label>
         <textarea
           name="query"
-          value={node.data.query || `SELECT * FROM ${node.data.model}`}
+          value={node.data.query}
           onBlur={handleChange}
           className="w-full p-2 border rounded h-32 font-mono text-sm"
           placeholder="SELECT * FROM table WHERE id = :id"
@@ -252,7 +252,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
         <input
           type="text"
           name="resultVar"
-          value={node.data.resultVar || "result"}
+          value={node.data.resultVar}
           onBlur={handleChange}
           className="w-full p-2 border rounded"
           placeholder="result"
@@ -272,7 +272,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               </label>
               <select
                 name="authType"
-                value={node.data.authType || "bearer"}
+                value={node.data.authType}
                 onBlur={handleChange}
                 className="w-full p-2 border rounded"
               >
@@ -288,7 +288,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <input
                 type="text"
                 name="tokenVar"
-                value={node.data.tokenVar || ""}
+                value={node.data.tokenVar}
                 onBlur={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="token"
@@ -304,7 +304,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <label className="block text-sm font-medium mb-1">Method</label>
               <select
                 name="method"
-                value={node.data.method || "GET"}
+                value={node.data.method}
                 onBlur={handleChange}
                 className="w-full p-2 border rounded"
               >
@@ -524,7 +524,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <label className="block text-sm font-medium mb-1">Output Type</label>
               <select
                 name="outputType"
-                value={node.data.outputType || "definition"}
+                value={node.data.outputType}
                 onBlur={handleChange}
                 className="w-full p-2 border rounded"
               >
@@ -538,7 +538,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 <label className="block text-sm font-medium mb-1">Response Raw</label>
                 <textarea
                   name="responseRaw"
-                  value={node.data.responseRaw || ""}
+                  value={node.data.responseRaw}
                   onBlur={handleChange}
                   className="w-full p-2 border rounded h-32"
                   placeholder="Enter raw response here..."
@@ -633,7 +633,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <input
                 type="number"
                 name="statusCode"
-                value={node.data.statusCode || 200}
+                value={node.data.statusCode}
                 onBlur={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="200"
@@ -662,7 +662,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <label className="block text-sm font-medium mb-1">Type</label>
               <select
                 name="type"
-                value={node.data.type || "string"}
+                value={node.data.type}
                 onBlur={handleChange}
                 className="w-full p-2 border rounded"
               >
@@ -680,7 +680,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <input
                 type="text"
                 name="defaultValue"
-                value={node.data.defaultValue || ""}
+                value={node.data.defaultValue}
                 onBlur={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="Default value"
@@ -697,7 +697,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
             </label>
             <textarea
               name="code"
-              value={node.data.code || ""}
+              value={node.data.code}
               onBlur={handleChange}
               className="w-full p-2 border rounded h-40 font-mono text-sm"
               placeholder="// Write your JavaScript code here"
@@ -733,7 +733,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               </label>
               <textarea
                 name="variables"
-                value={node.data.variables || ""}
+                value={node.data.variables}
                 onBlur={handleChange}
                 className="w-full p-2 border rounded h-20 font-mono text-sm"
                 placeholder="name: string&#10;age: number"
@@ -752,7 +752,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <input
                 type="text"
                 name="idField"
-                value={node.data.idField || ""}
+                value={node.data.idField}
                 onBlur={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="id"
@@ -765,7 +765,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 </label>
                 <textarea
                   name="variables"
-                  value={node.data.variables || ""}
+                  value={node.data.variables}
                   onBlur={handleChange}
                   className="w-full p-2 border rounded h-20 font-mono text-sm"
                   placeholder="name: string&#10;age: number"
