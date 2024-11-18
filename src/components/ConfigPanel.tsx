@@ -15,6 +15,84 @@ interface Field {
   validation?: string;
 }
 
+const getDefaultDataForType = (type: string) => {
+  const baseData = {
+    label: type.charAt(0).toUpperCase() + type.slice(1).replace("-", " ")
+  };
+
+  switch (type) {
+    case "variable":
+      return {
+        ...baseData,
+        name: "",
+        type: "string",
+        defaultValue: ""
+      };
+    
+    case "url":
+      return {
+        ...baseData,
+        method: "GET",
+        path: "",
+        fields: [],
+        queryFields: []
+      };
+    
+    case "auth":
+      return {
+        ...baseData,
+        authType: "bearer",
+        tokenVar: ""
+      };
+    
+    case "output":
+      return {
+        ...baseData,
+        outputType: "definition",
+        statusCode: 200,
+        fields: [],
+        responseRaw: ""
+      };
+    
+    case "logic":
+      return {
+        ...baseData,
+        code: ""
+      };
+    
+    case "db-find":
+    case "db-query":
+      return {
+        ...baseData,
+        model: "",
+        operation: "findMany",
+        query: "",
+        resultVar: "result"
+      };
+    
+    case "db-insert":
+      return {
+        ...baseData,
+        model: "",
+        variables: "",
+        resultVar: "result"
+      };
+    
+    case "db-update":
+    case "db-delete":
+      return {
+        ...baseData,
+        model: "",
+        idField: "id",
+        variables: "",
+        resultVar: "result"
+      };
+    
+    default:
+      return baseData;
+  }
+};
+
 export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
   const { models, updateNode } = useFlowStore();
   const [newField, setNewField] = useState<Field>({ name: "", type: "string" });
@@ -22,6 +100,23 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
     name: "",
     type: "string",
   });
+
+  useEffect(() => {
+    if (node) {
+      // Initialize node data with defaults if not already set
+      const defaultData = getDefaultDataForType(node.type);
+      const newData = {
+        ...defaultData,
+        ...node.data // This will override defaults with any existing data
+      };
+      
+      // Only update if the data is different
+      if (JSON.stringify(newData) !== JSON.stringify(node.data)) {
+        onUpdateNode(node.id, newData);
+        updateNode(node.id, newData);
+      }
+    }
+  }, [node?.id, node?.type]);
 
   useEffect(() => {
     console.log("ConfigPanel re-rendered with node:", node);
@@ -118,7 +213,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
         <select
           name="model"
           value={node.data.model || ""}
-          onChange={handleChange}
+          onBlur={handleChange}
           className="w-full p-2 border rounded"
         >
           <option value="">Select Model</option>
@@ -134,7 +229,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
         <select
           name="operation"
           value={node.data.operation || "findMany"}
-          onChange={handleChange}
+          onBlur={handleChange}
           className="w-full p-2 border rounded"
         >
           <option value="findMany">Find Many</option>
@@ -147,7 +242,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
         <textarea
           name="query"
           value={node.data.query || `SELECT * FROM ${node.data.model}`}
-          onChange={handleChange}
+          onBlur={handleChange}
           className="w-full p-2 border rounded h-32 font-mono text-sm"
           placeholder="SELECT * FROM table WHERE id = :id"
         />
@@ -158,7 +253,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
           type="text"
           name="resultVar"
           value={node.data.resultVar || "result"}
-          onChange={handleChange}
+          onBlur={handleChange}
           className="w-full p-2 border rounded"
           placeholder="result"
         />
@@ -178,7 +273,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <select
                 name="authType"
                 value={node.data.authType || "bearer"}
-                onChange={handleChange}
+                onBlur={handleChange}
                 className="w-full p-2 border rounded"
               >
                 <option value="bearer">Bearer Token</option>
@@ -194,7 +289,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 type="text"
                 name="tokenVar"
                 value={node.data.tokenVar || ""}
-                onChange={handleChange}
+                onBlur={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="token"
               />
@@ -210,7 +305,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <select
                 name="method"
                 value={node.data.method || "GET"}
-                onChange={handleChange}
+                onBlur={handleChange}
                 className="w-full p-2 border rounded"
               >
                 {["GET", "POST", "PUT", "DELETE", "PATCH"].map((method) => (
@@ -227,8 +322,8 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <input
                 type="text"
                 name="path"
-                value={node.data.path || ""}
-                onChange={(e) => {
+                value={node.data.path}
+                onBlur={(e) => {
                   handleChange(e);
                   const queryParams = extractQueryParams(e.target.value);
                   onUpdateNode(node.id, {
@@ -260,7 +355,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                   <input
                     type="text"
                     value={field.name}
-                    onChange={(e) =>
+                    onBlur={(e) =>
                       handleArrayChange(index, "name", e.target.value, "fields")
                     }
                     className="flex-1 p-2 border rounded text-sm"
@@ -268,7 +363,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                   />
                   <select
                     value={field.type}
-                    onChange={(e) =>
+                    onBlur={(e) =>
                       handleArrayChange(index, "type", e.target.value, "fields")
                     }
                     className="w-20 p-2 border rounded text-sm"
@@ -290,7 +385,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 <input
                   type="text"
                   value={newField.name}
-                  onChange={(e) =>
+                  onBlur={(e) =>
                     setNewField({ ...newField, name: e.target.value })
                   }
                   className="flex-1 p-2 border rounded text-sm"
@@ -298,7 +393,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 />
                 <select
                   value={newField.type}
-                  onChange={(e) =>
+                  onBlur={(e) =>
                     setNewField({ ...newField, type: e.target.value })
                   }
                   className="w-20 p-2 border rounded text-sm"
@@ -340,7 +435,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                     <input
                       type="text"
                       value={field.name}
-                      onChange={(e) =>
+                      onBlur={(e) =>
                         handleArrayChange(
                           index,
                           "name",
@@ -353,7 +448,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                     />
                     <select
                       value={field.type}
-                      onChange={(e) =>
+                      onBlur={(e) =>
                         handleArrayChange(
                           index,
                           "type",
@@ -381,7 +476,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 <input
                   type="text"
                   value={newQueryField.name}
-                  onChange={(e) =>
+                  onBlur={(e) =>
                     setNewQueryField({ ...newQueryField, name: e.target.value })
                   }
                   className="flex-1 p-2 border rounded text-sm"
@@ -389,7 +484,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 />
                 <select
                   value={newQueryField.type}
-                  onChange={(e) =>
+                  onBlur={(e) =>
                     setNewQueryField({ ...newQueryField, type: e.target.value })
                   }
                   className="w-20 p-2 border rounded text-sm"
@@ -430,7 +525,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <select
                 name="outputType"
                 value={node.data.outputType || "definition"}
-                onChange={handleChange}
+                onBlur={handleChange}
                 className="w-full p-2 border rounded"
               >
                 <option value="definition">Definition</option>
@@ -444,7 +539,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 <textarea
                   name="responseRaw"
                   value={node.data.responseRaw || ""}
-                  onChange={handleChange}
+                  onBlur={handleChange}
                   className="w-full p-2 border rounded h-32"
                   placeholder="Enter raw response here..."
                 />
@@ -458,7 +553,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                       <input
                         type="text"
                         value={field.name}
-                        onChange={(e) =>
+                        onBlur={(e) =>
                           handleArrayChange(index, "name", e.target.value, "fields")
                         }
                         className="flex-1 p-2 border rounded text-sm"
@@ -466,7 +561,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                       />
                       <select
                         value={field.type}
-                        onChange={(e) =>
+                        onBlur={(e) =>
                           handleArrayChange(index, "type", e.target.value, "fields")
                         }
                         className="w-24 p-2 border rounded text-sm"
@@ -491,7 +586,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                   <input
                     type="text"
                     value={newField.name}
-                    onChange={(e) =>
+                    onBlur={(e) =>
                       setNewField({ ...newField, name: e.target.value })
                     }
                     className="flex-1 p-2 border rounded text-sm"
@@ -499,7 +594,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                   />
                   <select
                     value={newField.type}
-                    onChange={(e) =>
+                    onBlur={(e) =>
                       setNewField({ ...newField, type: e.target.value })
                     }
                     className="w-24 p-2 border rounded text-sm"
@@ -539,7 +634,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 type="number"
                 name="statusCode"
                 value={node.data.statusCode || 200}
-                onChange={handleChange}
+                onBlur={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="200"
               />
@@ -557,8 +652,8 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <input
                 type="text"
                 name="name"
-                value={node.data.name || ""}
-                onChange={handleChange}
+                value={node.data.name}
+                onBlur={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="myVariable"
               />
@@ -568,7 +663,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <select
                 name="type"
                 value={node.data.type || "string"}
-                onChange={handleChange}
+                onBlur={handleChange}
                 className="w-full p-2 border rounded"
               >
                 <option value="string">String</option>
@@ -586,7 +681,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 type="text"
                 name="defaultValue"
                 value={node.data.defaultValue || ""}
-                onChange={handleChange}
+                onBlur={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="Default value"
               />
@@ -603,7 +698,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
             <textarea
               name="code"
               value={node.data.code || ""}
-              onChange={handleChange}
+              onBlur={handleChange}
               className="w-full p-2 border rounded h-40 font-mono text-sm"
               placeholder="// Write your JavaScript code here"
             />
@@ -639,7 +734,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <textarea
                 name="variables"
                 value={node.data.variables || ""}
-                onChange={handleChange}
+                onBlur={handleChange}
                 className="w-full p-2 border rounded h-20 font-mono text-sm"
                 placeholder="name: string&#10;age: number"
               />
@@ -658,7 +753,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 type="text"
                 name="idField"
                 value={node.data.idField || ""}
-                onChange={handleChange}
+                onBlur={handleChange}
                 className="w-full p-2 border rounded"
                 placeholder="id"
               />
@@ -671,7 +766,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 <textarea
                   name="variables"
                   value={node.data.variables || ""}
-                  onChange={handleChange}
+                  onBlur={handleChange}
                   className="w-full p-2 border rounded h-20 font-mono text-sm"
                   placeholder="name: string&#10;age: number"
                 />
