@@ -73,6 +73,7 @@ interface FlowState {
   deleteRoute: (routeId: string) => void;
   updateSettings: (settings: Settings) => void;
   setDefaultTablesShown: (shown: boolean) => void;
+  updateNode: (nodeId: string, newData: any) => void;
 }
 
 export const useFlowStore = create<FlowState>((set) => ({
@@ -145,4 +146,20 @@ export const useFlowStore = create<FlowState>((set) => ({
     })),
   updateSettings: (settings) => set({ settings }),
   setDefaultTablesShown: (shown) => set({ defaultTablesShown: shown }),
+  updateNode: (nodeId: string, newData: any) => {
+    console.log("Updating node in store:", nodeId, newData);
+    set((state) => ({
+      nodes: state.nodes.map((node) =>
+        node.id === nodeId
+          ? {
+              ...node,
+              data: {
+                ...node.data,
+                ...newData,
+              },
+            }
+          : node
+      ),
+    }));
+  },
 }));

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Plus, Trash } from "lucide-react";
 import { Node } from "reactflow";
 import { useFlowStore } from "../store/flowStore";
@@ -16,40 +16,35 @@ interface Field {
 }
 
 export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
-  const { models } = useFlowStore();
+  const { models, updateNode } = useFlowStore();
   const [newField, setNewField] = useState<Field>({ name: "", type: "string" });
   const [newQueryField, setNewQueryField] = useState<Field>({
     name: "",
     type: "string",
   });
 
+  useEffect(() => {
+    console.log("ConfigPanel re-rendered with node:", node);
+  }, [node]);
+
   if (!node) return null;
-
+  console.log("what up");
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    console.log('Changing', e.target.name, 'to', e.target.value); // Debug log
+    if (!node) return;
+    
+    console.log("Handling change for:", e.target.name, "with value:", e.target.value);
 
-    if (e.target.name === 'outputType') {
-      // Create entirely new data object for output type change
-      const newData = {
-        ...node.data,
-        outputType: e.target.value,
-        // Reset fields based on new type
-        fields: e.target.value === 'mockup' ? [] : (node.data.fields || []),
-        responseRaw: e.target.value === 'mockup' ? '{}' : undefined,
-      };
-      console.log('New data after output type change:', newData); // Debug log
-      onUpdateNode(node.id, newData);
-    } else {
-      // Handle other changes normally
-      onUpdateNode(node.id, {
-        ...node.data,
-        [e.target.name]: e.target.value,
-      });
-    }
+    const newData = {
+      ...node.data,
+      [e.target.name]: e.target.value,
+    };
+
+    console.log("New data to update:", newData);
+
+    onUpdateNode(node.id, newData);
+    updateNode(node.id, newData);
   };
 
   const handleArrayChange = (
@@ -60,10 +55,13 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
   ) => {
     const array = [...(node.data[arrayName] || [])];
     array[index] = { ...array[index], [field]: value };
-    onUpdateNode(node.id, {
+    const newData = {
       ...node.data,
       [arrayName]: array,
-    });
+    };
+
+    onUpdateNode(node.id, newData);
+    updateNode(node.id, newData);
   };
 
   const addField = (arrayName: string) => {
@@ -71,10 +69,13 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
     if (!fieldToAdd.name.trim()) return;
 
     const array = [...(node.data[arrayName] || []), { ...fieldToAdd }];
-    onUpdateNode(node.id, {
+    const newData = {
       ...node.data,
       [arrayName]: array,
-    });
+    };
+
+    onUpdateNode(node.id, newData);
+    updateNode(node.id, newData);
 
     // Reset the appropriate state
     if (arrayName === "queryFields") {
@@ -87,10 +88,13 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
   const removeField = (index: number, arrayName: string) => {
     const array = [...(node.data[arrayName] || [])];
     array.splice(index, 1);
-    onUpdateNode(node.id, {
+    const newData = {
       ...node.data,
       [arrayName]: array,
-    });
+    };
+
+    onUpdateNode(node.id, newData);
+    updateNode(node.id, newData);
   };
 
   const copyQueryFields = () => {
