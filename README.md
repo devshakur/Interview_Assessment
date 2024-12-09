@@ -28,6 +28,7 @@ All this task must be done in 1 day
 - Make a dashboard page like figma file https://www.figma.com/file/veiESwD61KJBa7BpEHtbdl/react-task-2?node-id=1086%3A15525
 - Call paginate api as shown below to get video data. Show 10 per page. Have a next button at bottom when clicked, load next 10 videos
 
+```
 URL: http://localhost:3000/v1/api/rest/video/PAGINATE
 METHOD: POST
 BODY: {
@@ -53,6 +54,7 @@ Response:
     "total": 81,
     "num_pages": 2
 }
+```
 - Call paginate api as shown below to get video data. Show 10 per page. Have a prev button at bottom when clicked, load prev 10 videos
 - Use React Drag and drop library https://react-dnd.github.io/react-dnd/about to be able to rearrange the rows and columns in the table in dashboard. On Refresh, the columns go back to default
 
