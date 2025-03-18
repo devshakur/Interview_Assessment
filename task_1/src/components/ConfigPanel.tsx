@@ -377,7 +377,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 <input
                   type="text"
                   value={newField.name}
-                  onBlur={(e) =>
+                  onChange={(e) =>  //change OnBlur to Onchange 
                     setNewField({ ...newField, name: e.target.value })
                   }
                   className="flex-1 p-2 border rounded text-sm"
@@ -468,7 +468,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 <input
                   type="text"
                   value={newQueryField.name}
-                  onBlur={(e) =>
+                  onChange={(e) => //change onBlur to On chnage
                     setNewQueryField({ ...newQueryField, name: e.target.value })
                   }
                   className="flex-1 p-2 border rounded text-sm"
