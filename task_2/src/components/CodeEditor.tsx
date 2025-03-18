@@ -33,14 +33,14 @@ export function CodeEditor({ value, onChange }: CodeEditorProps) {
           </div>
         ))}
       </div>
-      <pre className="absolute left-12 right-0 top-0 bottom-0 m-0 p-4 overflow-hidden pointer-events-none">
+      <pre className="absolute left-12 right-0 top-0 bottom-0 m-0 p-4 overflow-hidden pointer-events-none ">
         <code dangerouslySetInnerHTML={{ __html: highlighted }} />
       </pre>
       <textarea
         ref={textareaRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-full pl-14 pr-4 pt-4 bg-transparent resize-none focus:outline-none leading-6 text-transparent caret-white"
+        className="w-full h-full p-4 bg-transparent text-transparent caret-gray-300 resize-none font-mono"
         spellCheck={false}
       />
     </div>
