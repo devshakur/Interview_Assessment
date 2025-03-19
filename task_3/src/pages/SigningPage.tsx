@@ -5,8 +5,11 @@ import { PDFViewer } from '../components/PDFViewer';
 import { SigningField } from '../components/SigningField';
 
 export const SigningPage: React.FC = () => {
-  const { documentId } = useParams<{ documentId: string }>();
+
+
+const { documentId } = useParams<{ documentId: string }>();
   const navigate = useNavigate();
+  // const { documents, updateDocument } = useDocumentStore();
   const { documents, updateDocument } = useDocumentStore();
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
 
@@ -28,17 +31,21 @@ export const SigningPage: React.FC = () => {
   };
 
   const handleComplete = () => {
+    const updatedFields = document.fields.map(field => ({
+      ...field,
+      value: fieldValues[field.id] || field.value || '',  // Ensuring i get previous values 
+    }));
+  
     const updatedDocument = {
       ...document,
       status: 'completed' as const,
-      fields: document.fields.map(field => ({
-        ...field,
-        value: fieldValues[field.id] || ''
-      }))
+      fields: updatedFields, 
     };
+  
     updateDocument(updatedDocument);
-    navigate('/summary');
+    navigate(`/preview/${document.id}`);  // Navigate to preview page with document ID
   };
+  
 
   const allFieldsFilled = document.fields
     .filter(f => f.required)
@@ -76,4 +83,4 @@ export const SigningPage: React.FC = () => {
       </div>
     </div>
   );
-};
+}; 

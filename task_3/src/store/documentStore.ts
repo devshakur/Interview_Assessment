@@ -51,14 +51,17 @@ export const useDocumentStore = create<DocumentStore>((set) => ({
         ? { ...state.currentDocument, recipients: state.currentDocument.recipients.filter((r) => r.id !== recipientId) }
         : state.currentDocument
     })),
-  addField: (documentId, field) =>
+    addField: (documentId, field) =>
     set((state) => ({
       documents: state.documents.map((d) =>
-        d.id === documentId
-          ? { ...d, fields: [...d.fields, field] }
-          : d
+        d.id === documentId ? { ...d, fields: [...d.fields, field] } : d
       ),
+      currentDocument:
+        state.currentDocument?.id === documentId
+          ? { ...state.currentDocument, fields: [...state.currentDocument.fields, field] }
+          : state.currentDocument,
     })),
+  
   updateField: (documentId, field) =>
     set((state) => ({
       documents: state.documents.map((d) =>
