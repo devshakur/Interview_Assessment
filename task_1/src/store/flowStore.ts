@@ -163,3 +163,89 @@ export const useFlowStore = create<FlowState>((set) => ({
     }));
   },
 }));
+// import React, { createContext, useContext, useState } from "react";
+// import { Node, Edge } from "reactflow";
+
+// const FlowContext = createContext(null);
+
+// export const FlowProvider = ({ children }) => {
+//   const [nodes, setNodes] = useState([]);
+//   const [edges, setEdges] = useState([]);
+//   const [selectedNode, setSelectedNode] = useState(null);
+//   const [models, setModels] = useState([]);
+//   const [roles, setRoles] = useState([]);
+//   const [routes, setRoutes] = useState([]);
+//   const [defaultTablesShown, setDefaultTablesShown] = useState(false);
+//   const [settings, setSettings] = useState({
+//     globalKey: `key_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+//     databaseType: "mysql",
+//     authType: "session",
+//     timezone: "UTC",
+//     dbHost: "localhost",
+//     dbPort: "3306",
+//     dbUser: "root",
+//     dbPassword: "root",
+//     dbName: `database_${new Date().toISOString().split("T")[0]}`,
+//   });
+
+//   const updateNodeData = (nodeId, newData) => {
+//     setNodes((prevNodes) =>
+//       prevNodes.map((node) =>
+//         node.id === nodeId ? { ...node, data: { ...node.data, ...newData } } : node
+//       )
+//     );
+//   };
+
+//   const addModel = (model) => setModels((prev) => [...prev, model]);
+//   const updateModel = (model) =>
+//     setModels((prev) => prev.map((m) => (m.id === model.id ? model : m)));
+
+//   const addRole = (role) => setRoles((prev) => [...prev, role]);
+//   const updateRole = (role) =>
+//     setRoles((prev) => prev.map((r) => (r.id === role.id ? role : r)));
+//   const deleteRole = (roleId) => setRoles((prev) => prev.filter((r) => r.id !== roleId));
+
+//   const addRoute = (route) => setRoutes((prev) => [...prev, route]);
+//   const updateRoute = (route) =>
+//     setRoutes((prev) => prev.map((r) => (r.id === route.id ? route : r)));
+//   const deleteRoute = (routeId) => setRoutes((prev) => prev.filter((r) => r.id !== routeId));
+
+//   return (
+//     <FlowContext.Provider
+//       value={{
+//         nodes,
+//         setNodes,
+//         edges,
+//         setEdges,
+//         selectedNode,
+//         setSelectedNode,
+//         models,
+//         addModel,
+//         updateModel,
+//         roles,
+//         addRole,
+//         updateRole,
+//         deleteRole,
+//         routes,
+//         addRoute,
+//         updateRoute,
+//         deleteRoute,
+//         settings,
+//         setSettings,
+//         defaultTablesShown,
+//         setDefaultTablesShown,
+//         updateNodeData,
+//       }}
+//     >
+//       {children}
+//     </FlowContext.Provider>
+//   );
+// };
+
+// export const useFlowContext = () => {
+//   const context = useContext(FlowContext);
+//   if (!context) {
+//     throw new Error("useFlowContext must be used within a FlowProvider");
+//   }
+//   return context;
+// };

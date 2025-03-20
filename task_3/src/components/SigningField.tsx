@@ -4,6 +4,8 @@ import { DocumentField } from '../types';
 
 interface SigningFieldProps {
   field: DocumentField;
+  value: string; // ✅ Ensure this value is used in inputs
+  readOnly?: boolean;
   onChange: (fieldId: string, value: string) => void;
 }
 
@@ -15,7 +17,7 @@ const fieldIcons = {
   initial: Edit,
 };
 
-export const SigningField: React.FC<SigningFieldProps> = ({ field, onChange }) => {
+export const SigningField: React.FC<SigningFieldProps> = ({ field, value, onChange }) => {
   const Icon = fieldIcons[field.type];
 
   const renderInput = () => {
@@ -35,6 +37,7 @@ export const SigningField: React.FC<SigningFieldProps> = ({ field, onChange }) =
         return (
           <input
             type="date"
+            value={value || ''} // ✅ Ensure controlled input
             onChange={(e) => onChange(field.id, e.target.value)}
             className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
@@ -43,6 +46,7 @@ export const SigningField: React.FC<SigningFieldProps> = ({ field, onChange }) =
         return (
           <input
             type="checkbox"
+            checked={value === 'true'} // ✅ Ensure controlled input
             onChange={(e) => onChange(field.id, e.target.checked ? 'true' : 'false')}
             className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
           />
@@ -51,6 +55,7 @@ export const SigningField: React.FC<SigningFieldProps> = ({ field, onChange }) =
         return (
           <input
             type="text"
+            value={value || ''} // ✅ Ensure controlled input
             onChange={(e) => onChange(field.id, e.target.value)}
             className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder={`Enter ${field.type}`}
@@ -63,12 +68,12 @@ export const SigningField: React.FC<SigningFieldProps> = ({ field, onChange }) =
     <div
       style={{
         position: 'absolute',
-        left: field.position.x,
-        top: field.position.y,
-        width: field.size.width,
-        height: field.size.height,
+        left: `${field.position.x}%`, // ✅ Ensure proper positioning
+        top: `${field.position.y}%`,  // ✅ Ensure proper positioning
+        width: `${field.size.width}px`,
+        height: `${field.size.height}px`,
       }}
-      className="bg-white shadow-sm"
+      className="bg-white shadow-sm relative"
     >
       {renderInput()}
       {field.required && (
