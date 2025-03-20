@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Chat } from '../components/Chat';
 import { Editor as CodeEditor } from '../components/Editor';
 

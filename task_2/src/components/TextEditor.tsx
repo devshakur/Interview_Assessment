@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface TextEditorProps {
   value: string;
@@ -16,7 +16,7 @@ export function TextEditor({ value, onChange, placeholder }: TextEditorProps) {
       value={value}
       onChange={handleChange}
       placeholder={placeholder}
-      className="w-full min-h-[100px] p-5 bg-white border border-[#E5E5E5] rounded-lg shadow-[0_2px_4px_rgba(0,0,0,0.1)] text-[#333333] text-base leading-relaxed resize-y font-sans placeholder:text-gray-400 hover:border-[#D1D1D1] focus:border-[#D1D1D1] focus:outline-none transition-colors duration-200"
+      className="w-full min-h-[100px] px-4 py-[10px] bg-white border border-gray-300 rounded-lg resize-y text-base leading-relaxed font-sans placeholder:text-gray-400 focus:border-blue-500 focus:outline-none"
     />
   );
 }

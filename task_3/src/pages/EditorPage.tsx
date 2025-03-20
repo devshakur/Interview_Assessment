@@ -17,7 +17,7 @@ const FIELD_DEFAULT_SIZES = {
 
 export const EditorPage: React.FC = () => {
   const navigate = useNavigate();
-  const { currentDocument, addField } = useDocumentStore();
+  const { currentDocument, addField, updateFieldPosition } = useDocumentStore();
   const [selectedField, setSelectedField] = useState<DocumentField | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -29,21 +29,21 @@ export const EditorPage: React.FC = () => {
 
     const type = e.dataTransfer.getData('fieldType') as DocumentField['type'];
     const rect = containerRef.current.getBoundingClientRect();
-
-    // Get the scroll position of the container
+    
+    // Get scroll positions
     const scrollX = containerRef.current.scrollLeft;
     const scrollY = containerRef.current.scrollTop;
 
-    // Calculate position relative to the container
-    const x = ((e.clientX - rect.left + scrollX) / rect.width) * 100;
-    const y = ((e.clientY - rect.top + scrollY) / rect.height) * 100;
+    // Calculate position in pixels
+    const x = e.clientX - rect.left + scrollX;
+    const y = e.clientY - rect.top + scrollY;
 
     if (type) {
       const newField: DocumentField = {
         id: crypto.randomUUID(),
         type,
         recipientId: currentDocument.recipients[0].id,
-        position: { x: Math.max(0, Math.min(x, 100)), y: Math.max(0, Math.min(y, 100)) },
+        position: { x, y },
         size: FIELD_DEFAULT_SIZES[type],
         required: true,
         page: currentPage,
@@ -56,6 +56,17 @@ export const EditorPage: React.FC = () => {
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+  };
+
+  const handleFieldDrag = (e: React.DragEvent<HTMLDivElement>, field: DocumentField) => {
+    e.preventDefault();
+    if (!containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const newX = e.clientX - rect.left + containerRef.current.scrollLeft;
+    const newY = e.clientY - rect.top + containerRef.current.scrollTop;
+    
+    updateFieldPosition(currentDocument.id, field.id, { x: newX, y: newY });
   };
 
   const handleSave = () => {
@@ -108,19 +119,33 @@ export const EditorPage: React.FC = () => {
                 .map(field => (
                   <div
                     key={field.id}
+                    draggable
+                    onDragEnd={(e) => handleFieldDrag(e, field)}
                     style={{
                       position: 'absolute',
-                      left: `${field.position.x}%`,
-                      top: `${field.position.y}%`,
+                      left: `${field.position.x}px`,
+                      top: `${field.position.y}px`,
                       width: field.size.width,
                       height: field.size.height,
                     }}
-                    className="border-2 border-blue-500 bg-white/80 rounded-md shadow-sm"
+                    className="border-2 border-blue-500 bg-white/80 rounded-md shadow-sm cursor-move"
                   >
                     <div className="text-xs bg-blue-500 text-white px-2 py-1 flex items-center justify-between rounded-t-sm">
                       <span className="capitalize">{field.type}</span>
-                      <GripHorizontal className="w-3 h-3 cursor-move" />
+                      <GripHorizontal className="w-3 h-3" />
                     </div>
+                    {field.type === 'text' && (
+                      <input
+                        type="text"
+                        value={field.value || ''}
+                        onChange={(e) => {
+                          const updatedField = { ...field, value: e.target.value };
+                          addField(currentDocument.id, updatedField);
+                        }}
+                        className="w-full h-full text-sm p-1 bg-transparent outline-none"
+                        placeholder="Enter text..."
+                      />
+                    )}
                   </div>
                 ))}
             </div>

@@ -4,9 +4,11 @@ import { CodeEditor } from './CodeEditor';
 import { EditorTabs } from './EditorTabs';
 import { EditorNavBar } from './EditorNavBar';
 import { Breadcrumb } from './Breadcrumb';
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-export function Editor() {
-  const [code, setCode] = React.useState(`// Your code will appear here
+
+const fileContents: Record<string, string> = {
+  "/src/App.tsx": `// App.tsx
 import React from 'react';
 import { Prompt } from './components/Prompt';
 import { Chat } from './components/Chat';
@@ -28,26 +30,56 @@ function App() {
     </div>
   );
 }
-export default App;`);
-  const [currentFile, setCurrentFile] = React.useState('/src/App.tsx');
+export default App;`,
+
+  "/src/components/Chat.tsx": `// Chat.tsx
+import React from 'react';
+
+export function Chat() {
+  return <div>Chat Component</div>;
+}`,
+
+  "/src/components/Editor.tsx": `// Editor.tsx
+import React from 'react';
+
+export function Editor() {
+  return <div>Editor Component</div>;
+}`,
+};
+
+export function Editor() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  // Get file path from URL or default to App.tsx
+  const filePath = searchParams.get("file") || "/src/App.tsx";
+
+  // Set initial code
+  const [code, setCode] = React.useState(fileContents[filePath] || "// File not found");
+
+  // Update code when file changes
+  React.useEffect(() => {
+    setCode(fileContents[filePath] || "// File not found");
+  }, [filePath]);
 
   return (
     <>
-    <EditorTabs />
-        <EditorNavBar />
-    <div className="h-full flex bg-[#1E1E1E]">
-      <FileTree onFileSelect={(path) => {
-          setCurrentFile(path);
-          // In a real app, we would load the file content here
-        }} />
-      <div className="flex-1 flex flex-col">
-        <Breadcrumb path={currentFile} />
-        <CodeEditor
-          value={code}
-          onChange={setCode}
+      <EditorTabs />
+      <EditorNavBar />
+      <div className="h-full flex bg-[#1E1E1E]">
+        {/* File Tree */}
+        <FileTree
+          onFileSelect={(path) => {
+            navigate(`/editor?file=${encodeURIComponent(path)}`);
+          }}
         />
+
+        {/* Code Editor Section */}
+        <div className="flex-1 flex flex-col">
+          <Breadcrumb path={filePath} />
+          <CodeEditor value={code} onChange={setCode} />
+        </div>
       </div>
-    </div>
-      </>
+    </>
   );
 }
