@@ -15,7 +15,7 @@ export function Editor() {
         <div className="h-[calc(100vh-5rem)] rounded-lg border shadow-sm overflow-hidden">
           <Chat />
         </div>
-        <div className="h-[calc(100vh-5rem)] rounded-lg border shadow-sm overflow-hidden">
+        <div className="h-[calc(100vh-5rem)] rounded-lg  border shadow-sm overflow-hidden">
           <CodeEditor />
         </div>
       </main>

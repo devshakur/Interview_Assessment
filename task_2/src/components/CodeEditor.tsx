@@ -33,16 +33,19 @@ export function CodeEditor({ value, onChange }: CodeEditorProps) {
           </div>
         ))}
       </div>
-      <pre className="absolute left-12 right-0 top-0 bottom-0 m-0 p-4 overflow-hidden pointer-events-none ">
+      {/* this is the highligtingg text that shows above the real text */}
+      <pre className="absolute left-12 right-0 top-0 bottom-0 m-0 p-4 overflow-hidden pointer-events-none "> 
         <code dangerouslySetInnerHTML={{ __html: highlighted }} />
       </pre>
+     {/* i use this style absolute top-0 left-12 to perfectly align the textarea with pre-text */}
       <textarea
         ref={textareaRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-full p-4 bg-transparent text-transparent caret-gray-300 resize-none font-mono"
+        className="absolute left-12 top-0 w-full h-full p-4 bg-transparent text-transparent caret-gray-300 resize-none font-mono"
         spellCheck={false}
       />
     </div>
   );
 }
+

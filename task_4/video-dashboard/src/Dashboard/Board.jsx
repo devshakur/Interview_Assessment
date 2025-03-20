@@ -18,7 +18,7 @@ const Board = () => {
         });
 
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-       
+
         const data = await response.json();
         setVideos(data.list || []);
       } catch (error) {
@@ -35,23 +35,23 @@ const Board = () => {
 
   return (
     <div className="flex justify-center flex-col items-center">
-     <section className="grid grid-cols-[auto_1fr_auto] items-center ml-10 px-5 w-[90%] text-white">
-  
+      <section className="grid grid-cols-[auto_1fr_auto] items-center ml-10 px-5 w-[90%] text-white">
 
-  <div className="flex gap-6">
-    <span className="text-[16px] text-[#666666] font-thin">#</span>
-    <h4 className="text-[16px] text-[#666666] font-thin">Title</h4>
-  </div>
 
-  
-  <div className="flex justify-end">
-  <h4 className="text-[16px]  text-[#666666] font-thin text-center w-[70%]">Author</h4>
-  </div>
+        <div className="flex gap-6">
+          <span className="text-[16px] text-[#666666] font-thin">#</span>
+          <h4 className="text-[16px] text-[#666666] font-thin">Title</h4>
+        </div>
 
- 
-  <h4 className="text-[16px] text-[#666666] font-thin">Most Like</h4>
 
-</section>
+        <div className="flex justify-end">
+          <h4 className="text-[16px]  text-[#666666] font-thin text-center w-[78%]">Author</h4>
+        </div>
+
+
+        <h4 className="text-[16px] text-[#666666] font-thin font-sans">Most Like</h4>
+
+      </section>
 
 
       <main className="w-[93%]">
