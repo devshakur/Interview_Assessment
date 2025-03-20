@@ -10,7 +10,7 @@ const videoData = [
   { id: 2, title: "The Cryptocurrency Trading Bible", author: "deniscrypto", likes: 198, imgSrc: "/images/coin.png" },
   { id: 3, title: "Designing our new company brand: Meta", author: "meta_world98", likes: 320, imgSrc: "/images/meta.png" },
   { id: 4, title: "Connect media partners, earn exciting rewards for today", author: "kingdom43world", likes: 410, imgSrc: "/images/yell.png" },
-  { id: 4, title: "Connect media partners, earn exciting rewards for today", author: "sjkj3987423kjbdfsf", likes: 410, imgSrc: "/images/hands.png" },
+  { id: 4, title: "Connect media partners, earn exciting rewards for today", author: "bendiscrypto", likes: 410, imgSrc: "/images/hands.png" },
 ];
 
 const allVideos = Array.from({ length: 40 }, (_, i) => ({ ...videoData[i % videoData.length], id: i + 1 }));
@@ -30,11 +30,11 @@ const DraggableRow = ({ video, index, moveRow }) => {
   });
 
   return (
-    <div ref={(node) => ref(drop(node))} className="w-[100%] flex items-center justify-between mb-4 px-8 gap-5 border border-gray-500 py-1 rounded-2xl cursor-move">
+    <div ref={(node) => ref(drop(node))} className="w-[100%] flex items-center justify-between mb-4 px-8 gap-5 border border-[#FFFFFF1F] py-3 rounded-2xl cursor-move">
       <div className="flex items-center gap-5">
         <div className="text-gray-800 font-medium text-[16px]">{String(index + 1).padStart(2, "0")}</div>
-        <div className="flex gap-3">
-          <img src={video.imgSrc} alt="video" className="w-52 h-22 rounded-lg" />
+        <div className="flex items-center gap-3">
+          <img src={video.imgSrc} alt="video" className="w-[112px] h-[64px] rounded-lg" />
           <div className="w-[364px]">
             <p className="text-[#F7F7F7] text-[20px] font-thin">{video.title}</p>
           </div>
@@ -45,7 +45,7 @@ const DraggableRow = ({ video, index, moveRow }) => {
         <p className="text-[#DBFD51] font-mono text-[16px]">{video.author}</p>
       </div>
       <div className="flex items-center gap-2 text-white">
-        <p>{video.likes}</p>
+        <p className="font-inter font-[100] text-[#FFFFFF] text-[15px]">{video.likes}</p>
         <FaArrowUp color="#DBFD51" />
       </div>
     </div>

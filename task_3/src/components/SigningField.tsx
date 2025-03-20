@@ -4,7 +4,7 @@ import { DocumentField } from '../types';
 
 interface SigningFieldProps {
   field: DocumentField;
-  value: string; // ✅ Ensure this value is used in inputs
+  value: string; 
   readOnly?: boolean;
   onChange: (fieldId: string, value: string) => void;
 }
@@ -37,7 +37,7 @@ export const SigningField: React.FC<SigningFieldProps> = ({ field, value, onChan
         return (
           <input
             type="date"
-            value={value || ''} // ✅ Ensure controlled input
+            value={value || ''} 
             onChange={(e) => onChange(field.id, e.target.value)}
             className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
@@ -46,7 +46,7 @@ export const SigningField: React.FC<SigningFieldProps> = ({ field, value, onChan
         return (
           <input
             type="checkbox"
-            checked={value === 'true'} // ✅ Ensure controlled input
+            checked={value === 'true'} 
             onChange={(e) => onChange(field.id, e.target.checked ? 'true' : 'false')}
             className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
           />
@@ -55,7 +55,7 @@ export const SigningField: React.FC<SigningFieldProps> = ({ field, value, onChan
         return (
           <input
             type="text"
-            value={value || ''} // ✅ Ensure controlled input
+            value={value || ''} 
             onChange={(e) => onChange(field.id, e.target.value)}
             className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder={`Enter ${field.type}`}
@@ -68,8 +68,8 @@ export const SigningField: React.FC<SigningFieldProps> = ({ field, value, onChan
     <div
       style={{
         position: 'absolute',
-        left: `${field.position.x}%`, // ✅ Ensure proper positioning
-        top: `${field.position.y}%`,  // ✅ Ensure proper positioning
+        left: `${field.position.x}%`, 
+        top: `${field.position.y}%`,  
         width: `${field.size.width}px`,
         height: `${field.size.height}px`,
       }}

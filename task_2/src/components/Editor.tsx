@@ -45,21 +45,21 @@ import React from 'react';
 export function Editor() {
   return <div>Editor Component</div>;
 }`,
-};
+}; //chnaged how this was rendered
 
 export function Editor() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
-  // Get file path from URL or default to App.tsx
+  
   const filePath = searchParams.get("file") || "/src/App.tsx";
 
-  // Set initial code
+  
   const [code, setCode] = React.useState(fileContents[filePath] || "// File not found");
 
   // Update code when file changes
   React.useEffect(() => {
-    setCode(fileContents[filePath] || "// File not found");
+    setCode(fileContents[filePath] || "// Requested file not found");
   }, [filePath]);
 
   return (
@@ -67,14 +67,14 @@ export function Editor() {
       <EditorTabs />
       <EditorNavBar />
       <div className="h-full flex bg-[#1E1E1E]">
-        {/* File Tree */}
+    
         <FileTree
           onFileSelect={(path) => {
-            navigate(`/editor?file=${encodeURIComponent(path)}`);
+            navigate(`/editor?file=${encodeURIComponent(path)}`); 
           }}
         />
 
-        {/* Code Editor Section */}
+   
         <div className="flex-1 flex flex-col">
           <Breadcrumb path={filePath} />
           <CodeEditor value={code} onChange={setCode} />
