@@ -210,7 +210,7 @@ export const EditorPage: React.FC = () => {
 
     setCurrentDocument({ ...currentDocument, fields: updatedFields });
 
-    // ✅ Save field values to localStorage
+    // Save field values to localStorage
     const savedFields = JSON.parse(localStorage.getItem('documentFields') || '{}');
     localStorage.setItem(
       'documentFields',
