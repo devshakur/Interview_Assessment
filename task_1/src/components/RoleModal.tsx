@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Trash2 } from "lucide-react";
-import { useFlowStore } from "../store/flowStore";
+import { useFlowContext } from "../store/FlowContext";
 
 interface Permissions {
   authRequired: boolean;
@@ -53,7 +53,7 @@ const createInitialFormData = () => ({
 });
 
 export function RoleModal({ isOpen, onClose, role }: RoleModalProps) {
-  const { routes, addRole, updateRole, deleteRole } = useFlowStore();
+  const { routes, addRole, updateRole, deleteRole } = useFlowContext();
   const [formData, setFormData] = useState(createInitialFormData());
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X, Plus } from "lucide-react";
-import { useFlowStore } from "../store/flowStore";
+import { useFlowContext } from "../store/FlowContext";
 
 interface DefaultTable {
   id: string;
@@ -69,7 +69,7 @@ export function DefaultTablesModal({
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
   const [includeAdminRole, setIncludeAdminRole] = useState(true);
   const [includeMemberRole, setIncludeMemberRole] = useState(true);
-  const { addModel, addRole } = useFlowStore();
+  const { addModel, addRole } = useFlowContext();
 
   const handleToggleTable = (tableId: string) => {
     setSelectedTables((prev) =>

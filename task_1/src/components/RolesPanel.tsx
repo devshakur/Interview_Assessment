@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Plus, Edit2 } from 'lucide-react';
-import { useFlowStore } from '../store/flowStore';
+import { useFlowContext } from '../store/FlowContext';
 import { RoleModal } from './RoleModal';
 
 export function RolesPanel() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<any>(null);
-  const { roles } = useFlowStore();
+  const { roles } = useFlowContext();
 
   return (
     <div className="space-y-4">

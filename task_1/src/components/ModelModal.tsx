@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Plus, Trash } from "lucide-react";
-import { useFlowStore } from "../store/flowStore";
+import { useFlowContext } from "../store/FlowContext";
 
 interface Field {
   name: string;
@@ -88,7 +88,7 @@ export function ModelModal({ isOpen, onClose, model }: ModelModalProps) {
   const [newField, setNewField] = useState<Field>(initialNewField);
   const [createCrudApis, setCreateCrudApis] = useState(false); // New state for CRUD API checkbox
 
-  const { addModel, updateModel, addRoute } = useFlowStore();
+  const { addModel, updateModel, addRoute } = useFlowContext();
 
   useEffect(() => {
     if (model) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Plus, Trash } from "lucide-react";
 import { Node } from "reactflow";
-import { useFlowStore } from "../store/flowStore";
+import { useFlowContext } from "../store/FlowContext";
 
 interface ConfigPanelProps {
   node: Node | null;
@@ -17,7 +17,7 @@ interface Field {
 
 const getDefaultDataForType = (type: string) => {
   const baseData = {
-    label: type.charAt(0).toUpperCase() + type.slice(1).replace("-", " ")
+    label: type.charAt(0).toUpperCase() + type.slice(1).replace("-", " "),
   };
 
   switch (type) {
@@ -26,40 +26,40 @@ const getDefaultDataForType = (type: string) => {
         ...baseData,
         name: "",
         type: "string",
-        defaultValue: ""
+        defaultValue: "",
       };
-    
+
     case "url":
       return {
         ...baseData,
         method: "GET",
         path: "",
         fields: [],
-        queryFields: []
+        queryFields: [],
       };
-    
+
     case "auth":
       return {
         ...baseData,
         authType: "bearer",
-        tokenVar: ""
+        tokenVar: "",
       };
-    
+
     case "output":
       return {
         ...baseData,
         outputType: "definition",
         statusCode: 200,
         fields: [],
-        responseRaw: ""
+        responseRaw: "",
       };
-    
+
     case "logic":
       return {
         ...baseData,
-        code: ""
+        code: "",
       };
-    
+
     case "db-find":
     case "db-query":
       return {
@@ -67,17 +67,17 @@ const getDefaultDataForType = (type: string) => {
         model: "",
         operation: "findMany",
         query: "",
-        resultVar: "result"
+        resultVar: "result",
       };
-    
+
     case "db-insert":
       return {
         ...baseData,
         model: "",
         variables: "",
-        resultVar: "result"
+        resultVar: "result",
       };
-    
+
     case "db-update":
     case "db-delete":
       return {
@@ -85,16 +85,16 @@ const getDefaultDataForType = (type: string) => {
         model: "",
         idField: "id",
         variables: "",
-        resultVar: "result"
+        resultVar: "result",
       };
-    
+
     default:
       return baseData;
   }
 };
 
 export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
-  const { models, updateNode } = useFlowStore();
+  const { models, updateNode, setSelectedNode } = useFlowContext();
   const [newField, setNewField] = useState<Field>({ name: "", type: "string" });
   const [newQueryField, setNewQueryField] = useState<Field>({
     name: "",
@@ -107,9 +107,9 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
       const defaultData = getDefaultDataForType(node.type);
       const newData = {
         ...defaultData,
-        ...node.data // This will override defaults with any existing data
+        ...node.data, // This will override defaults with any existing data
       };
-      
+
       // Only update if the data is different
       if (JSON.stringify(newData) !== JSON.stringify(node.data)) {
         onUpdateNode(node.id, newData);
@@ -118,18 +118,23 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
     }
   }, [node?.id, node?.type]);
 
-  useEffect(() => {
-    console.log("ConfigPanel re-rendered with node:", node);
-  }, [node]);
+ 
 
   if (!node) return null;
-  console.log("what up");
+ 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     if (!node) return;
-    
-    console.log("Handling change for:", e.target.name, "with value:", e.target.value);
+
+    console.log(
+      "Handling change for:",
+      e.target.name,
+      "with value:",
+      e.target.value
+    );
 
     const newData = {
       ...node.data,
@@ -141,23 +146,34 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
     onUpdateNode(node.id, newData);
     updateNode(node.id, newData);
   };
+  const handleAddField = () => {
+    if (newField.name.trim()) {
+      addField("fields");
 
-  const handleArrayChange = (
-    index: number,
-    field: string,
-    value: string,
-    arrayName: string
-  ) => {
-    const array = [...node.data[arrayName]];
-    array[index] = { ...array[index], [field]: value };
-    const newData = {
-      ...node.data,
-      [arrayName]: array,
-    };
-
-    onUpdateNode(node.id, newData);
-    updateNode(node.id, newData);
+      if (node) {
+        setSelectedNode(node);
+      }
+    }
   };
+
+ 
+  const handleArrayChange = (index: number, key: string, value: string, fieldType: string) => {
+    setQueryFields((prev) => {
+      const updatedQueryFields = prev.map((field, i) =>
+        i === index ? { ...field, [key]: value } : field
+      );
+  
+      
+      onUpdateNode(node.id, {
+        ...node.data,
+        [fieldType]: updatedQueryFields,
+      });
+  
+      return updatedQueryFields;
+    });
+  };
+  
+  
 
   const addField = (arrayName: string) => {
     const fieldToAdd = arrayName === "queryFields" ? newQueryField : newField;
@@ -172,7 +188,6 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
     onUpdateNode(node.id, newData);
     updateNode(node.id, newData);
 
-    // Reset the appropriate state
     if (arrayName === "queryFields") {
       setNewQueryField({ name: "", type: "string" });
     } else {
@@ -196,6 +211,20 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
     const currentFields = node.data.fields || [];
     navigator.clipboard.writeText(JSON.stringify(currentFields, null, 2));
   };
+ 
+
+  const [fields, setFields] = useState(node.data.fields || []);
+  const [queryFields, setQueryFields] = useState(node.data.fields || []);
+
+  useEffect(() => {
+    if (node.data.fields !== fields) {
+      setFields(node.data.fields || []);
+    }
+  }, [node.data.fields]); // this function force rerender when fields change
+
+  useEffect(() => {
+    setQueryFields(node.data.queryFields || []);
+  }, [node.data.queryFields]);
 
   const extractQueryParams = (path: string) => {
     const params = path.match(/:[a-zA-Z]+/g) || [];
@@ -332,17 +361,18 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <label className="block text-sm font-medium mb-1">
                 Body Fields
               </label>
-              {node.data.fields?.length > 0 && (
+
+              {fields.length > 0 && (
                 <div className="mb-2 p-2 bg-gray-50 rounded text-sm">
-                  {node.data.fields.map((field: Field) => (
-                    <div key={field.name} className="text-gray-600">
+                  {fields.map((field: Field, index) => (
+                    <div key={index} className="text-gray-600">
                       {field.name}: {field.type}
-                      {field.validation ? ` (${field.validation})` : ""}
                     </div>
                   ))}
                 </div>
               )}
-              {(node.data.fields || []).map((field: Field, index: number) => (
+
+              {fields.map((field: Field, index: number) => (
                 <div key={index} className="flex gap-1 mb-2">
                   <input
                     type="text"
@@ -377,15 +407,15 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 <input
                   type="text"
                   value={newField.name}
-                  onChange={(e) =>  //change OnBlur to Onchange 
-                    setNewField({ ...newField, name: e.target.value })
-                  }
+                  onChange={(
+                    e //change OnBlur to Onchange
+                  ) => setNewField({ ...newField, name: e.target.value })}
                   className="flex-1 p-2 border rounded text-sm"
                   placeholder="New field name"
                 />
                 <select
                   value={newField.type}
-                  onBlur={(e) =>
+                  onChange={(e) =>
                     setNewField({ ...newField, type: e.target.value })
                   }
                   className="w-20 p-2 border rounded text-sm"
@@ -398,10 +428,19 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 <button
                   onClick={() => {
                     if (newField.name.trim()) {
-                      addField("fields");
+                      const updatedFields = [...fields, { ...newField }]; //this will keep the previous user input
+
+                      onUpdateNode(node.id, {
+                        ...node.data,
+                        fields: updatedFields,
+                      });
+
+                      setFields(updatedFields);
+
+                      setNewField({ name: "", type: newField.type });
                     }
                   }}
-                  className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -411,64 +450,60 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <label className="block text-sm font-medium mb-1">
                 Query Parameters
               </label>
-              {node.data.queryFields?.length > 0 && (
+              {queryFields?.length > 0 && (
                 <div className="mb-2 p-2 bg-gray-50 rounded text-sm">
-                  {node.data.queryFields.map((field: Field) => (
-                    <div key={field.name} className="text-gray-600">
-                      {field.name}: {field.type}
-                      {field.validation ? ` (${field.validation})` : ""}
+                  {queryFields.length > 0 && ( 
+                    <div className="mb-2 p-1 bg-gray-50 rounded text-sm">
+                      {queryFields.map((field: Field) => (
+                        <div key={field.name} className="text-gray-600">
+                          {field.name}: {field.type}
+                          {field.validation ? ` (${field.validation})` : ""}
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+
                 </div>
               )}
-              {(node.data.queryFields || []).map(
-                (field: Field, index: number) => (
-                  <div key={index} className="flex gap-1 mb-2">
-                    <input
-                      type="text"
-                      value={field.name}
-                      onBlur={(e) =>
-                        handleArrayChange(
-                          index,
-                          "name",
-                          e.target.value,
-                          "queryFields"
-                        )
-                      }
-                      className="flex-1 p-2 border rounded text-sm"
-                      placeholder="Field name"
-                    />
-                    <select
-                      value={field.type}
-                      onBlur={(e) =>
-                        handleArrayChange(
-                          index,
-                          "type",
-                          e.target.value,
-                          "queryFields"
-                        )
-                      }
-                      className="w-20 p-2 border rounded text-sm"
-                    >
-                      <option value="string">String</option>
-                      <option value="number">Number</option>
-                      <option value="boolean">Bool</option>
-                      <option value="date">Date</option>
-                    </select>
-                    <button
-                      onClick={() => removeField(index, "queryFields")}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded"
-                    >
-                      <Trash className="w-4 h-4" />
-                    </button>
-                  </div>
-                )
-              )}
+         {queryFields.map((field: Field, index: number) => (
+  <div key={index} className="flex gap-1 mb-2">
+    <input
+      type="text"
+      value={field.name}
+      onChange={(e) =>
+        handleArrayChange(index, "name", e.target.value, "queryFields")
+      }
+      className="flex-1 p-2 border rounded text-sm"
+      placeholder="Field name"
+    />
+    <select
+      value={field.type}
+      onChange={(e) =>
+        handleArrayChange(index, "type", e.target.value, "queryFields")
+      }
+      className="w-20 p-2 border rounded text-sm"
+    >
+      <option value="string">String</option>
+      <option value="number">Number</option>
+      <option value="boolean">Bool</option>
+      <option value="date">Date</option>
+    </select>
+    <button
+      onClick={() => removeField(index, "queryFields")}
+      className="p-2 text-red-500 hover:bg-red-50 rounded"
+    >
+      <Trash className="w-4 h-4" />
+    </button>
+  </div>
+))}
+
               <div className="flex gap-1 mt-2">
                 <input
                   type="text"
                   value={newQueryField.name}
-                  onChange={(e) => //change onBlur to On chnage
+                  onChange={(
+                    e //change onBlur to On chnage
+                  ) =>
                     setNewQueryField({ ...newQueryField, name: e.target.value })
                   }
                   className="flex-1 p-2 border rounded text-sm"
@@ -476,7 +511,7 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                 />
                 <select
                   value={newQueryField.type}
-                  onBlur={(e) =>
+                  onChange={(e) =>
                     setNewQueryField({ ...newQueryField, type: e.target.value })
                   }
                   className="w-20 p-2 border rounded text-sm"
@@ -487,23 +522,28 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
                   <option value="date">Date</option>
                 </select>
                 <button
-                  onClick={() => {
-                    if (newQueryField.name.trim()) {
-                      const updatedQueryFields = [
-                        ...(node.data.queryFields || []),
-                        { ...newQueryField },
-                      ];
-                      onUpdateNode(node.id, {
-                        ...node.data,
-                        queryFields: updatedQueryFields,
-                      });
-                      setNewQueryField({ name: "", type: "string" });
-                    }
-                  }}
-                  className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
+  onClick={() => {
+    if (newQueryField.name.trim()) {
+      setQueryFields((prev) => {
+        const updatedQueryFields = [...prev, { ...newQueryField }];
+
+
+        onUpdateNode(node.id, {
+          ...node.data,
+          queryFields: updatedQueryFields,
+        });
+
+        return updatedQueryFields
+      });
+
+      
+      setNewQueryField({ name: "", type: newQueryField.type });
+    }
+  }}
+  className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+>
+  <Plus className="w-4 h-4" />
+</button>
               </div>
             </div>
           </>
@@ -513,7 +553,9 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
         return (
           <>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Output Type</label>
+              <label className="block text-sm font-medium mb-1">
+                Output Type
+              </label>
               <select
                 name="outputType"
                 value={node.data.outputType}
@@ -527,7 +569,9 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
 
             {node.data.outputType === "mockup" ? (
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Response Raw</label>
+                <label className="block text-sm font-medium mb-1">
+                  Response Raw
+                </label>
                 <textarea
                   name="responseRaw"
                   value={node.data.responseRaw}
@@ -540,39 +584,51 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Fields</label>
                 <div className="flex flex-wrap gap-2 mb-2">
-                  {(node.data.fields || []).map((field: Field, index: number) => (
-                    <div key={index} className="flex items-center">
-                      <input
-                        type="text"
-                        value={field.name}
-                        onBlur={(e) =>
-                          handleArrayChange(index, "name", e.target.value, "fields")
-                        }
-                        className="flex-1 p-2 border rounded text-sm"
-                        placeholder="Field name"
-                      />
-                      <select
-                        value={field.type}
-                        onBlur={(e) =>
-                          handleArrayChange(index, "type", e.target.value, "fields")
-                        }
-                        className="w-24 p-2 border rounded text-sm"
-                      >
-                        <option value="string">String</option>
-                        <option value="number">Number</option>
-                        <option value="boolean">Boolean</option>
-                        <option value="date">Date</option>
-                        <option value="object">Object</option>
-                        <option value="array">Array</option>
-                      </select>
-                      <button
-                        onClick={() => removeField(index, "fields")}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded"
-                      >
-                        <Trash className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
+                  {(node.data.fields || []).map(
+                    (field: Field, index: number) => (
+                      <div key={index} className="flex items-center">
+                        <input
+                          type="text"
+                          value={field.name}
+                          onBlur={(e) =>
+                            handleArrayChange(
+                              index,
+                              "name",
+                              e.target.value,
+                              "fields"
+                            )
+                          }
+                          className="flex-1 p-2 border rounded text-sm"
+                          placeholder="Field name"
+                        />
+                        <select
+                          value={field.type}
+                          onBlur={(e) =>
+                            handleArrayChange(
+                              index,
+                              "type",
+                              e.target.value,
+                              "fields"
+                            )
+                          }
+                          className="w-24 p-2 border rounded text-sm"
+                        >
+                          <option value="string">String</option>
+                          <option value="number">Number</option>
+                          <option value="boolean">Boolean</option>
+                          <option value="date">Date</option>
+                          <option value="object">Object</option>
+                          <option value="array">Array</option>
+                        </select>
+                        <button
+                          onClick={() => removeField(index, "fields")}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded"
+                        >
+                          <Trash className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )
+                  )}
                 </div>
                 <div className="flex items-center gap-2 mt-2">
                   <input
@@ -621,7 +677,9 @@ export function ConfigPanel({ node, onClose, onUpdateNode }: ConfigPanelProps) {
             )}
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Status Code</label>
+              <label className="block text-sm font-medium mb-1">
+                Status Code
+              </label>
               <input
                 type="number"
                 name="statusCode"

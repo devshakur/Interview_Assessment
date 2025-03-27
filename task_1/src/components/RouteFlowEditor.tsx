@@ -11,7 +11,7 @@ import ReactFlow, {
   Panel,
 } from "reactflow";
 import { ArrowLeft, Save } from "lucide-react";
-import { useFlowStore } from "../store/flowStore";
+import { useFlowContext } from "../store/FlowContext";
 import { ConfigPanel } from "./ConfigPanel";
 import { ComponentsPanel } from "./ComponentsPanel";
 import CustomNode from "./CustomNode";
@@ -47,7 +47,7 @@ function FlowEditorContent({ route, onClose }: FlowEditorContentProps) {
     setSelectedNode,
     updateNodeData,
     updateRoute,
-  } = useFlowStore();
+  } = useFlowContext();
 
   useEffect(() => {
     // Load saved flow data if it exists

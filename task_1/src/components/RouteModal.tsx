@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Trash2 } from "lucide-react";
-import { useFlowStore } from "../store/flowStore";
+import { useFlowContext } from "../store/FlowContext";
 
 interface RouteModalProps {
   isOpen: boolean;
@@ -21,7 +21,7 @@ const createInitialFormData = () => ({
 });
 
 export function RouteModal({ isOpen, onClose, route }: RouteModalProps) {
-  const { addRoute, updateRoute, deleteRoute } = useFlowStore();
+  const { addRoute, updateRoute, deleteRoute } = useFlowContext();
   const [formData, setFormData] = useState(createInitialFormData());
 
   useEffect(() => {
