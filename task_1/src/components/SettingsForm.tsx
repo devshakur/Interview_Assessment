@@ -1,10 +1,10 @@
 import React from "react";
 import { Save } from "lucide-react";
-import { useFlowStore } from "../store/flowStore";
+import { useFlowContext } from "../store/FlowContext";
 import { TranslationService } from "../services/TranslationService";
 
 export function SettingsForm() {
-  const { settings, updateSettings, routes } = useFlowStore();
+  const { settings, updateSettings, routes, models, roles } = useFlowContext()
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -20,9 +20,7 @@ export function SettingsForm() {
   };
 
   const handleExportConfiguration = () => {
-    const models = useFlowStore.getState().models;
-    const roles = useFlowStore.getState().roles;
-    const routes = useFlowStore.getState().routes;
+  
 
     const configuration = {
       models: models.map((model) => TranslationService.translateModel(model)),

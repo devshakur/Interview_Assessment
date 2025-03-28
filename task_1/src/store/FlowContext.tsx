@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Node, Edge } from 'reactflow';
+import React, { createContext, useContext, useState } from "react";
+import { Node, Edge } from "reactflow";
+
 
 interface Model {
   id: string;
@@ -50,6 +51,7 @@ interface Settings {
   dbName: string;
 }
 
+
 interface FlowState {
   nodes: Node[];
   edges: Edge[];
@@ -76,9 +78,11 @@ interface FlowState {
   updateNode: (nodeId: string, newData: any) => void;
 }
 
-const FlowContext = createContext<FlowState | undefined>(undefined);
 
-export const FlowProvider = ({ children }: { children: ReactNode }) => {
+const FlowContext = createContext<FlowState | null>(null);
+
+
+export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
@@ -96,28 +100,44 @@ export const FlowProvider = ({ children }: { children: ReactNode }) => {
     dbPassword: "root",
     dbName: `database_${new Date().toISOString().split("T")[0]}`,
   });
-  const [defaultTablesShown, setDefaultTablesShown] = useState<boolean>(false);
+  const [defaultTablesShown, setDefaultTablesShown] = useState(false);
+
 
   const updateNodeData = (nodeId: string, newData: any) => {
-    setNodes((prevNodes) =>
-      prevNodes.map((node) =>
+    setNodes((prev) =>
+      prev.map((node) =>
         node.id === nodeId ? { ...node, data: { ...node.data, ...newData } } : node
       )
     );
   };
 
   const addModel = (model: Model) => setModels((prev) => [...prev, model]);
-  const updateModel = (model: Model) => setModels((prev) => prev.map((m) => (m.id === model.id ? model : m)));
+  const updateModel = (model: Model) =>
+    setModels((prev) => prev.map((m) => (m.id === model.id ? model : m)));
+
   const addRole = (role: Role) => setRoles((prev) => [...prev, role]);
-  const updateRole = (role: Role) => setRoles((prev) => prev.map((r) => (r.id === role.id ? role : r)));
-  const deleteRole = (roleId: string) => setRoles((prev) => prev.filter((r) => r.id !== roleId));
+  const updateRole = (role: Role) =>
+    setRoles((prev) => prev.map((r) => (r.id === role.id ? role : r)));
+  const deleteRole = (roleId: string) =>
+    setRoles((prev) => prev.filter((r) => r.id !== roleId));
+
   const addRoute = (route: Route) => setRoutes((prev) => [...prev, route]);
-  const updateRoute = (route: Route) => setRoutes((prev) => prev.map((r) => (r.id === route.id ? route : r)));
-  const deleteRoute = (routeId: string) => setRoutes((prev) => prev.filter((r) => r.id !== routeId));
-  const updateNode = (nodeId: string, newData: any) => {
-    console.log("Updating node in store:", nodeId, newData);
-    updateNodeData(nodeId, newData);
-  };
+  const updateRoute = (route: Route) =>
+    setRoutes((prev) => prev.map((r) => (r.id === route.id ? route : r)));
+  const deleteRoute = (routeId: string) =>
+    setRoutes((prev) => prev.filter((r) => r.id !== routeId));
+
+ const updateNode = (nodeId: string, newData: any) => {
+  console.log("Updating node in context:", nodeId, newData);
+  setNodes((prevNodes) =>
+    prevNodes.map((node) =>
+      node.id === nodeId
+        ? { ...node, data: { ...node.data, ...newData } }
+        : node
+    )
+  );
+};
+
 
   return (
     <FlowContext.Provider
@@ -136,6 +156,7 @@ export const FlowProvider = ({ children }: { children: ReactNode }) => {
         updateNodeData,
         addModel,
         updateModel,
+        updateNode,
         addRole,
         updateRole,
         deleteRole,
@@ -144,7 +165,6 @@ export const FlowProvider = ({ children }: { children: ReactNode }) => {
         deleteRoute,
         updateSettings: setSettings,
         setDefaultTablesShown,
-        updateNode,
       }}
     >
       {children}
@@ -152,10 +172,11 @@ export const FlowProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// this is how i call the context in my componernt
 export const useFlowContext = () => {
   const context = useContext(FlowContext);
   if (!context) {
     throw new Error("useFlowContext must be used within a FlowProvider");
   }
   return context;
-}; 
+};

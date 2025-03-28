@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Plus, Edit2, Code } from "lucide-react";
-import { useFlowStore } from "../store/flowStore";
+import { useFlowContext } from "../store/FlowContext";
 import { RouteModal } from "./RouteModal";
 import { RouteFlowEditor } from "./RouteFlowEditor";
 
@@ -8,7 +8,7 @@ export function RoutesPanel() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState<any>(null);
   const [editingRoute, setEditingRoute] = useState<any>(null);
-  const { routes } = useFlowStore();
+  const { routes } = useFlowContext();
 
   return (
     <div className="flex flex-col h-full">

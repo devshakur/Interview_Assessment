@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Edit2 } from "lucide-react";
-import { useFlowStore } from "../store/flowStore";
+import { useFlowContext } from "../store/FlowContext";
 import { ModelModal } from "./ModelModal";
 import { DefaultTablesModal } from "./DefaultTablesModal";
 
@@ -9,7 +9,7 @@ export function ModelPanel() {
   const [isDefaultTablesModalOpen, setIsDefaultTablesModalOpen] =
     useState(false);
   const [selectedModel, setSelectedModel] = useState<any>(null);
-  const { models, defaultTablesShown, setDefaultTablesShown } = useFlowStore();
+  const { models, defaultTablesShown, setDefaultTablesShown } = useFlowContext();
 
   useEffect(() => {
     // Show default tables modal only if there are no models and it hasn't been shown before

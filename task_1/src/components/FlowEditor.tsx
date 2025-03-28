@@ -9,7 +9,7 @@ import ReactFlow, {
   applyNodeChanges,
   applyEdgeChanges,
 } from 'reactflow';
-import { useFlowStore } from '../store/flowStore';
+import { useFlowContext } from '../store/FlowContext';
 import { ConfigPanel } from './ConfigPanel';
 import CustomNode from './CustomNode';
 
@@ -36,7 +36,7 @@ export function FlowEditor() {
     selectedNode,
     setSelectedNode,
     updateNodeData,
-  } = useFlowStore();
+  } = useFlowContext();
 
   const onNodesChange = React.useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
